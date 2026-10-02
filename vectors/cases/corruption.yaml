@@ -1,0 +1,74 @@
+# Корпус-контракт textcheck: corruption. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: chinese-character-in-russian-text
+  source: antagor tests/test_truncation.py::test_китайское_слово_в_русском_тексте_ловится (ost 363)
+  format: md
+  text: Срок составляет 三 месяца с даты ввоза.
+  rules:
+  - corruption
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: corruption
+      message: 'Чужая письменность в тексте: «三»'
+      excerpt: Срок составляет 三 месяца с даты ввоза.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: latin-term-is-fine
+  source: antagor tests/test_truncation.py::test_китайское_слово_в_русском_тексте_ловится
+  format: md
+  text: Код DataMatrix наносят на упаковку.
+  rules:
+  - corruption
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: latin-inside-russian-word
+  source: antagor quality_checks.MIXED_ALPHABET_RE (правки 2026-09-23)
+  format: md
+  text: Мы fixируем цену на seriю поставок.
+  rules:
+  - corruption
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: corruption
+      message: Латиница внутри русского слова
+      excerpt: Мы fixируем цену на seriю поставок.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: corruption
+      message: Латиница внутри русского слова
+      excerpt: Мы fixируем цену на seriю поставок.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: foreign-script-off-for-latin-profile
+  source: antagor quality_checks.check_foreign_script (script != cyrillic)
+  format: md
+  profile:
+    language:
+      script: latin
+  text: Срок составляет 三 месяца с даты ввоза.
+  rules:
+  - corruption
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []

@@ -1,0 +1,203 @@
+# Корпус-контракт textcheck: markup. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: orphan-li-after-heading
+  source: antagor tests/test_markup_check.py::test_orphan_li_after_heading (ost 357)
+  format: html
+  text: <h2>Сроки</h2><li>с 1 июля 2026 года - сканирование на кассах;</li><p>Текст</p>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Пункт списка вне списка <ul>/<ol> - вставлен не на место
+      excerpt: с 1 июля 2026 года - сканирование на кассах;
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: afe891cf
+        quote: с 1 июля 2026 года - сканирование на кассах;
+      action: rewrite_block
+- id: list-items-inside-lists-ok
+  source: antagor tests/test_markup_check.py::test_list_items_inside_lists_ok
+  format: html
+  text: <ul><li>а</li><li>б</li></ul><ol><li>в</li></ol>
+  rules:
+  - markup
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: unexpected-end-tag
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <p>текст <strong>жирный</p><p>дальше</p>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Лишний закрывающий тег </p> - открывающего нет или он уже закрыт
+      excerpt: текст жирный дальше
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: markup
+      message: Лишний закрывающий тег </p> - открывающего нет или он уже закрыт
+      excerpt: текст жирный дальше
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: end-tag-too-early
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <h2>Заголовок</h3><p>т</p>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Тег </h3> закрыт раньше вложенных - теги перепутаны
+      excerpt: Заголовок т
+      gate: true
+      unit: phrase
+      address:
+        block: 0
+        anchor: 6f48b40a
+        quote: Заголовок т
+      action: rewrite_block
+- id: eof-inside-tag
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <p>текст <a href='x'>ссылка
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Текст кончился внутри незакрытого тега
+      excerpt: текст ссылка
+      gate: true
+      unit: paragraph
+      address:
+        block: 0
+        anchor: a5e2f38c
+        quote: текст ссылка
+      action: rewrite_block
+- id: skipped-heading-level
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <h2>А</h2><h4>Б</h4>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: 'Пропущен уровень заголовка: <h4> после <h2>'
+      excerpt: Б
+      gate: true
+      unit: phrase
+      address:
+        block: 1
+        anchor: 48a246fe
+        quote: Б
+      action: rewrite_block
+- id: h3-before-first-h2
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <h3>Раньше h2</h3><h2>А</h2>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: 'Пропущен уровень заголовка: <h3> до первого <h2>'
+      excerpt: Раньше h2
+      gate: true
+      unit: phrase
+      address:
+        block: 0
+        anchor: 96176ca0
+        quote: Раньше h2
+      action: rewrite_block
+- id: non-li-inside-list
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <ul><li>а</li><p>абзац</p></ul>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Внутри списка <ul> тег <p> - там допустимы только <li>
+      excerpt: абзац
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 51d26cef
+        quote: абзац
+      action: rewrite_block
+- id: empty-paragraph
+  source: antagor tests/test_markup_check.py::test_parse_errors_and_hierarchy
+  format: html
+  text: <h2>А</h2><p> </p>
+  rules:
+  - markup
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: markup
+      message: Пустой <p>
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: clean-structure
+  source: antagor tests/test_markup_check.py::test_clean_article_structure
+  format: html
+  text: <p>Вводная</p><h2>Раздел</h2><p>т</p><h3>Под</h3><ul><li>а</li></ul><h2>Ещё</h2><ol><li>б</li></ol>
+  rules:
+  - markup
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []

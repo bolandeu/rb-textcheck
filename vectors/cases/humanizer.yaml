@@ -1,0 +1,445 @@
+# Корпус-контракт textcheck: humanizer. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: hard-bans
+  source: antagor humanizer_lint.self_test (bad)
+  format: md
+  text: Это не просто курс — это экосистема. Скорость > идеальности. Без кода. Без настроек. Итог ≈ 5+ часов, джуны vs сеньоры.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 15
+      verdict: rewrite
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 длинное тире'
+      excerpt: Это не просто курс — это экосистема. Скорость
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: это экосистема. Скорость > идеальности. Без кода. Бе
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: . Итог ≈ 5+ часов, джуны vs сеньоры.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 13 негативный параллелизм'
+      excerpt: Это не просто курс — это экосистема. С
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 27 рубленый драматизм'
+      excerpt: Скорость > идеальности. Без кода. Без настроек. Итог ≈ 5+ часов
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: plain-text-no-errors
+  source: antagor humanizer_lint.self_test (ok)
+  format: md
+  text: |-
+    Обычный текст - с коротким тире, без слопа. Цифры 12 и 87 на месте.
+    > цитата
+    + пункт списка
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: data-signs-are-not-slop
+  source: antagor humanizer_lint.self_test (data, mw 2026-09-24)
+  format: md
+  text: Ткань UPF 50+ и CRI 90+, поставки в 120+ стран. Выставка Arts & Crafts. Допуск ±3% и точность ±0,02 мм. Коэффициент 1 кВт = 1,35962 л.с., таможенный сбор при стоимости > 450 000 руб.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: sign-instead-of-conjunction
+  source: antagor humanizer_lint.self_test (знак вместо слова)
+  format: md
+  text: Набор «диффузор + свеча + палочки».
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 6
+      verdict: review
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: Набор «диффузор + свеча + палочки».
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: Набор «диффузор + свеча + палочки».
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: arrow-chain
+  source: antagor humanizer_lint.self_test (знак вместо слова)
+  format: md
+  text: 'Полный цикл: заказ → таможня → доставка.'
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 6
+      verdict: review
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: 'Полный цикл: заказ → таможня → доставка.'
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 мат-знаки'
+      excerpt: 'ый цикл: заказ → таможня → доставка.'
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: warn-phrases
+  source: antagor humanizer_lint.self_test (warn)
+  format: md
+  text: Важно отметить, что по сути будущее выглядит ярким.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 3
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 3 (будущее выглядит ярким, важно отметить, по сути)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: divider-in-body-not-frontmatter
+  source: antagor humanizer_lint.self_test (hr)
+  format: md
+  text: |-
+    ---
+    title: x
+    ---
+
+    Абзац первый про дело.
+
+    ---
+
+    Абзац второй про другое.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 3
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: 34 разделитель в теле'
+      excerpt: '---'
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: repeated-verb-stem
+  source: antagor humanizer_lint.self_test (verbs)
+  format: md
+  text: Сбербанк предлагает проверять адрес каждого перевода внимательно. Тинькофф предлагает подтверждать операцию отдельным кодом всегда.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (33 повтор глагола)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: monotonous-rhythm
+  source: antagor humanizer_lint.self_test (mono)
+  format: md
+  text: Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд. Это предложение содержит ровно семь слов подряд.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 12
+      verdict: rewrite
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 12 (33 повтор глагола, ритм монотонный)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: chatbot-artifacts
+  source: antagor humanizer_lint.self_test (art)
+  format: md
+  text: 'Рынок вырос :contentReference[oaicite:0]{index=0}, детали turn0search3, см. https://example.com/?utm_source=chatgpt.com и [cite: 8].'
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 12
+      verdict: rewrite
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: A oaicite-сноска'
+      excerpt: Рынок вырос :contentReference[oaicite:0]{index=0}, детали turn0se
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: A turn-метка'
+      excerpt: cite:0]{index=0}, детали turn0search3, см. https://example.com
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: A utm/referrer чат-бота'
+      excerpt: 'см. https://example.com/?utm_source=chatgpt.com и [cite: 8].'
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: A gemini-цитата'
+      excerpt: 'utm_source=chatgpt.com и [cite: 8].'
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: artifacts-in-backticks-are-quotes
+  source: antagor humanizer_lint.self_test (art_ok)
+  format: md
+  text: Статья разбирает метки `turn0search0` и `</think>` как признаки ИИ.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: zwj-inside-emoji-is-fine
+  source: antagor humanizer_lint.self_test (fam)
+  format: md
+  text: Семья 👨‍👩‍👧 поехала на дачу.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (21 эмодзи)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: bare-zero-width
+  source: antagor humanizer_lint.self_test (zw)
+  format: md
+  text: Обычный текст с невидимым​символом внутри.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (B символ нулевой ширины)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: softener-cascade
+  source: antagor humanizer_lint.self_test (soft)
+  format: md
+  text: Возможно, в некоторых случаях это, скорее всего, сработает.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (19 каскад смягчений)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: single-softener-is-fine
+  source: antagor humanizer_lint.self_test (soft_ok)
+  format: md
+  text: Возможно, это сработает.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: colon-reveal
+  source: antagor humanizer_lint.self_test (cr)
+  format: md
+  text: 'Самое интересное: агент учится сам.'
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (двоеточие-подводка)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: plain-colon-is-fine
+  source: antagor humanizer_lint.self_test (cr_ok)
+  format: md
+  text: 'Список покупок: хлеб, молоко.'
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: mute-removes-rule
+  source: antagor prompts/content-logistics.quality.yml (mute мат-знаки)
+  format: md
+  profile:
+    humanizer:
+      mute:
+      - мат-знаки
+  text: Набор «диффузор + свеча + палочки».
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: error-is-not-gate-when-profile-says-so
+  source: antagor quality_profile.DEFAULTS (humanizer.error_is_gate)
+  format: md
+  profile:
+    humanizer:
+      error_is_gate: false
+  text: Это не просто курс — это экосистема.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 6
+      verdict: review
+    issues:
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 длинное тире'
+      excerpt: Это не просто курс — это экосистема.
+      gate: false
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: humanizer
+      message: 'Запрещённый приём: 13 негативный параллелизм'
+      excerpt: Это не просто курс — это экосистема.
+      gate: false
+      unit: paragraph
+      address: null
+      action: manual
+- id: warnings-over-threshold-are-a-gate
+  source: antagor quality_checks.check_humanizer (max_warnings)
+  format: md
+  profile:
+    humanizer:
+      max_warnings: 2
+  text: Важно отметить, что по сути будущее выглядит ярким.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 3
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: Предупреждений линтера 3 > порога 2 (будущее выглядит ярким, важно отметить, по сути)
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: humanizer-off
+  source: antagor quality_profile.DEFAULTS (humanizer.enabled)
+  format: md
+  profile:
+    humanizer:
+      enabled: false
+  text: Это не просто курс — это экосистема.
+  rules:
+  - humanizer
+  expect:
+    gate_failed: false
+    humanizer: null
+    issues: []

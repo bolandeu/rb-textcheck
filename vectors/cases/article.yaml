@@ -1,0 +1,164 @@
+# Корпус-контракт textcheck: article. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: clean-article-passes-defaults
+  source: antagor tests/test_quality_profile.py (ARTICLE)
+  format: html
+  text: |
+    <h2>Раздел первый</h2>
+    <p>Ставка пошлины составляет 20%, а срок доставки 10-15 дней.</p>
+    <p>Дозировка препарата 500 мг, класс бетона B25, цена 1000 рублей за тонну.</p>
+    <h2>Раздел второй</h2>
+    <p>Мы подбираем поставщика и готовим документы под конкретную задачу.</p>
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: humanizer
+      message: 'Предупреждений линтера: 1 (формальное открытие)'
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+- id: broken-article-under-logistics
+  source: antagor prompts/content-logistics.quality.yml + ost 357/358/363
+  format: html
+  profile: profiles/content-logistics.quality.yml
+  text: |
+    <h1>Импорт из Китая</h1>
+    <h2>Доставка: как это работает</h2>
+    <p>Мы не просто возим грузы — мы лидер рынка и работаем под ключ.</p>
+    <li>с 1 июля 2026 года - сканирование на кассах;</li>
+    <h2>Сроки</h2>
+    <p>Срок составляет 三 месяца, а партия едет 20-30 дней в пути до склада в Москве, где её принимает наш склад и проверяет по количеству мест</p>
+    <h4>Детали</h4>
+    <p>Контекст не раскрывает данные о спросе.</p>
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 3
+      verdict: clean
+    issues:
+    - rule: tags
+      message: 'Запрещённый тег <h1>: 1 шт.'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: markup
+      message: Пункт списка вне списка <ul>/<ol> - вставлен не на место
+      excerpt: с 1 июля 2026 года - сканирование на кассах;
+      gate: true
+      unit: paragraph
+      address:
+        block: 2
+        anchor: afe891cf
+        quote: с 1 июля 2026 года - сканирование на кассах;
+      action: rewrite_block
+    - rule: markup
+      message: 'Пропущен уровень заголовка: <h4> после <h2>'
+      excerpt: Детали
+      gate: true
+      unit: phrase
+      address:
+        block: 5
+        anchor: 833225b9
+        quote: Детали
+      action: rewrite_block
+    - rule: length
+      message: Длина 339 символов текста < минимума 2700
+      excerpt: ''
+      gate: false
+      unit: article
+      address: null
+      action: manual
+    - rule: headings
+      message: 'Разделов <h2>: 2, минимум 4'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: headings
+      message: Двоеточие в заголовке
+      excerpt: 'Доставка: как это работает'
+      gate: true
+      unit: phrase
+      address:
+        block: 0
+        anchor: 515d978c
+        quote: 'Доставка: как это работает'
+      action: rewrite_block
+    - rule: cliche
+      message: Запрещённое клише «лидер рынка»
+      excerpt: к это работает Мы не просто возим грузы — мы лидер рынка и работаем под ключ. с 1 июля 2026 года - ск
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: c91762df
+        quote: к это работает Мы не просто возим грузы — мы лидер рынка и работаем под ключ. с 1 июля 2026 года - ск
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «рассуждение о контексте в тексте статьи»
+      excerpt: склад и проверяет по количеству мест Детали Контекст не раскрывает данные о спросе.
+      gate: true
+      unit: paragraph
+      address:
+        block: 4
+        anchor: 536e3a78
+        quote: склад и проверяет по количеству мест Детали Контекст не раскрывает данные о спросе.
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «клише «под ключ»»
+      excerpt: осто возим грузы — мы лидер рынка и работаем под ключ. с 1 июля 2026 года - сканирование на кассах
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: c91762df
+        quote: осто возим грузы — мы лидер рынка и работаем под ключ. с 1 июля 2026 года - сканирование на кассах
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «сроки доставки»
+      excerpt: роки Срок составляет 三 месяца, а партия едет 20-30 дней в пути до склада в Москве, где её принимает наш скл
+      gate: true
+      unit: paragraph
+      address:
+        block: 4
+        anchor: 536e3a78
+        quote: роки Срок составляет 三 месяца, а партия едет 20-30 дней в пути до склада в Москве, где её принимает наш скл
+      action: rewrite_block
+    - rule: corruption
+      message: 'Чужая письменность в тексте: «三»'
+      excerpt: ование на кассах; Сроки Срок составляет 三 месяца, а партия едет 20-30 дней в пути
+      gate: true
+      unit: paragraph
+      address:
+        block: 4
+        anchor: 536e3a78
+        quote: ование на кассах; Сроки Срок составляет 三 месяца, а партия едет 20-30 дней в пути
+      action: rewrite_block
+    - rule: truncation
+      message: Блок обрывается на полуслове
+      excerpt: да в Москве, где её принимает наш склад и проверяет по количеству мест
+      gate: true
+      unit: paragraph
+      address:
+        block: 4
+        anchor: 536e3a78
+        quote: да в Москве, где её принимает наш склад и проверяет по количеству мест
+      action: rewrite_block
+    - rule: humanizer
+      message: 'Запрещённый приём: 23 длинное тире'
+      excerpt: Мы не просто возим грузы — мы лидер рынка и работае
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: c91762df
+        quote: Мы не просто возим грузы — мы лидер рынка и работае
+      action: rewrite_block

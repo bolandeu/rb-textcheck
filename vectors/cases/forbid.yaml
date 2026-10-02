@@ -1,0 +1,273 @@
+# Корпус-контракт textcheck: forbid. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: default-profile-is-niche-neutral
+  source: antagor tests/test_quality_profile.py::test_default_profile_ignores_domain_specifics
+  format: html
+  text: |
+    <h2>Раздел первый</h2>
+    <p>Ставка пошлины составляет 20%, а срок доставки 10-15 дней.</p>
+    <p>Дозировка препарата 500 мг, класс бетона B25, цена 1000 рублей за тонну.</p>
+    <h2>Раздел второй</h2>
+    <p>Мы подбираем поставщика и готовим документы под конкретную задачу.</p>
+  rules:
+  - forbid
+  - cliche
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues: []
+- id: profile-drives-bans
+  source: antagor tests/test_quality_profile.py::test_profile_drives_bans
+  format: html
+  profile:
+    forbid:
+    - name: ставки пошлин
+      regex: пошлин\w*\s+составляет\s+\d+\s*%
+  text: |
+    <h2>Раздел первый</h2>
+    <p>Ставка пошлины составляет 20%, а срок доставки 10-15 дней.</p>
+    <p>Дозировка препарата 500 мг, класс бетона B25, цена 1000 рублей за тонну.</p>
+    <h2>Раздел второй</h2>
+    <p>Мы подбираем поставщика и готовим документы под конкретную задачу.</p>
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «ставки пошлин»
+      excerpt: Раздел первый Ставка пошлины составляет 20%, а срок доставки 10-15 дней. Дозировка препа
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 2338ba65
+        quote: Раздел первый Ставка пошлины составляет 20%, а срок доставки 10-15 дней. Дозировка препа
+      action: rewrite_block
+- id: pipeline-forbid-context-talk
+  source: antagor tests/test_quality_profile.py::test_pipeline_violations_ловит_только_разговор_об_источниках (mw 2026-09-24)
+  format: md
+  text: Контекст не раскрывает данные о спросе. Источники не подтверждают эту цифру.
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «рассуждение о контексте в тексте статьи»
+      excerpt: Контекст не раскрывает данные о спросе. Источники не подтверждают э
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «рассуждение о контексте в тексте статьи»
+      excerpt: Контекст не раскрывает данные о спросе. Источники не подтверждают эту цифру.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: pipeline-forbid-ignores-normal-context-phrases
+  source: antagor tests/test_quality_profile.py::test_pipeline_violations_ловит_только_разговор_об_источниках
+  format: md
+  text: В контексте импорта из Китая это обычная практика. Работает научно-исследовательский центр.
+  rules:
+  - forbid
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: pipeline-forbid-vat-20
+  source: antagor quality_profile.PIPELINE_FORBID (решение 2026-09-28, ost 356)
+  format: md
+  text: Цена кода с НДС 20% составляет 60 копеек. НДС 20 000 рублей платится отдельно.
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «ставка НДС 20%»
+      excerpt: Цена кода с НДС 20% составляет 60 копеек. НДС 20 000 рублей плат
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: pipeline-forbid-survives-profile-forbid
+  source: antagor tests/test_quality_profile.py::test_pipeline_forbid_is_not_overridden_by_profile
+  format: md
+  profile:
+    forbid:
+    - name: своё правило
+      regex: бетон
+  text: Контекст не раскрывает марку. Класс бетона B25.
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «рассуждение о контексте в тексте статьи»
+      excerpt: Контекст не раскрывает марку. Класс бетона B25.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «своё правило»
+      excerpt: Контекст не раскрывает марку. Класс бетона B25.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: logistics-profile-bans-and-cliches
+  source: antagor prompts/content-logistics.quality.yml (3433 «под ключ», 3505 знак вместо союза)
+  format: html
+  profile: profiles/content-logistics.quality.yml
+  text: |
+    <h2>Как мы работаем</h2>
+    <p>Мы лидер рынка и делаем всё под ключ, а размером под ключ на 12 мм деталь не бывает.</p>
+    <table><tr><td>тюль + портьеры</td><td>Доставка займёт 10-15 дней.</td></tr></table>
+    <p>Ставка НДС 22% указана для справки. Свяжитесь с нами.</p>
+  rules:
+  - forbid
+  - cliche
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: cliche
+      message: Запрещённое клише «лидер рынка»
+      excerpt: Как мы работаем Мы лидер рынка и делаем всё под ключ, а размером под ключ н
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 6b9a2fe1
+        quote: Как мы работаем Мы лидер рынка и делаем всё под ключ, а размером под ключ н
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «клише «под ключ»»
+      excerpt: Как мы работаем Мы лидер рынка и делаем всё под ключ, а размером под ключ на 12 мм деталь не быва
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 6b9a2fe1
+        quote: Как мы работаем Мы лидер рынка и делаем всё под ключ, а размером под ключ на 12 мм деталь не быва
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «сроки доставки»
+      excerpt: ч на 12 мм деталь не бывает. тюль + портьеры Доставка займёт 10-15 дней. Ставка НДС 22% указана для справки. Свяжи
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 6b9a2fe1
+        quote: ч на 12 мм деталь не бывает. тюль + портьеры Доставка займёт 10-15 дней. Ставка НДС 22% указана для справки. Свяжи
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «ставки пошлин»
+      excerpt: портьеры Доставка займёт 10-15 дней. Ставка НДС 22% указана для справки. Свяжитесь с нами.
+      gate: true
+      unit: paragraph
+      address:
+        block: 4
+        anchor: 12e58dc1
+        quote: портьеры Доставка займёт 10-15 дней. Ставка НДС 22% указана для справки. Свяжитесь с нами.
+      action: rewrite_block
+    - rule: forbid
+      message: Нарушен запрет «знак вместо союза»
+      excerpt: мером под ключ на 12 мм деталь не бывает. тюль + портьеры Доставка займёт 10-15 дней. Ставка НД
+      gate: true
+      unit: paragraph
+      address:
+        block: 1
+        anchor: 6b9a2fe1
+        quote: мером под ключ на 12 мм деталь не бывает. тюль + портьеры Доставка займёт 10-15 дней. Ставка НД
+      action: rewrite_block
+- id: max-five-hits-per-rule
+  source: antagor quality_checks.MAX_HITS_PER_RULE (3433 - «под ключ» в двух блоках)
+  format: md
+  profile:
+    forbid:
+    - name: бетон
+      regex: бетон
+  text: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: бетон. бетон. бетон. бетон. бетон. бетон. бетон.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: judge-only-rule-is-not-checked-by-regex
+  source: antagor quality_profile.ForbidRule (regex необязателен)
+  format: md
+  profile:
+    forbid:
+    - name: смысловой запрет
+      judge: не обещать невозможного
+  text: Обещаем невозможное.
+  rules:
+  - forbid
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []

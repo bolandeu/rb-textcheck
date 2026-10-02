@@ -1,0 +1,4 @@
+# regex не компилируется
+forbid:
+  - name: битый regex
+    regex: "(незакрыта"

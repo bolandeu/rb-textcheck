@@ -1,0 +1,75 @@
+# Корпус-контракт textcheck: format. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: code-fence
+  source: antagor quality_checks.check_format
+  format: html
+  text: |-
+    ```html
+    <p>Текст статьи.</p>
+    ```
+  rules:
+  - format
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: format
+      message: Ответ модели обёрнут в ``` - разметка кода в статье
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: markdown-in-html
+  source: antagor quality_checks.check_format
+  format: html
+  text: |-
+    ## Раздел
+
+    Текст без тегов.
+  rules:
+  - format
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: format
+      message: Ждали HTML, а в тексте markdown-заголовки (#)
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: format
+      message: Ждали HTML, но блочных тегов в тексте нет
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: html-in-markdown
+  source: antagor quality_checks.check_format
+  format: md
+  text: |-
+    ## Раздел
+
+    <p>Абзац тегом.</p>
+  rules:
+  - format
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: format
+      message: Ждали markdown, а в тексте HTML-теги
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual

@@ -1,0 +1,78 @@
+# Корпус-контракт textcheck: tags. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: forbidden-tags-by-default
+  source: antagor quality_profile.DEFAULTS (h1/script/style/iframe)
+  format: html
+  text: <h1>Заголовок</h1><p>Текст.</p><script>alert(1)</script>
+  rules:
+  - tags
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: tags
+      message: 'Запрещённый тег <h1>: 1 шт.'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: tags
+      message: 'Запрещённый тег <script>: 1 шт.'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: required-tag-missing
+  source: antagor quality_checks.check_markup (tags.required)
+  format: html
+  profile:
+    tags:
+      required:
+      - ul
+  text: <h2>Раздел</h2><p>Текст.</p>
+  rules:
+  - tags
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: tags
+      message: Нет обязательного тега <ul>
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: import-article-forbids-table-parts
+  source: antagor prompts/content-import-article.quality.yml (Дзен не принимает таблицы)
+  format: html
+  profile: profiles/content-import-article.quality.yml
+  text: <h2>Раздел</h2><p>Текст.</p><tr><td>ячейка</td></tr>
+  rules:
+  - tags
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: tags
+      message: 'Запрещённый тег <tr>: 1 шт.'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: tags
+      message: 'Запрещённый тег <td>: 1 шт.'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual

@@ -1,0 +1,60 @@
+# Корпус-контракт textcheck: truncation. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: faq-question-without-mark-is-not-truncation
+  source: antagor tests/test_truncation.py::test_вопрос_без_знака_не_обрыв (ost 358)
+  format: html
+  text: <p>Подлежат ли маркировке БАД</p><p>Обязательна ли маркировка для маркетплейсов</p>
+  rules:
+  - truncation
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: abbreviation-at-end-is-not-truncation
+  source: antagor tests/test_truncation.py::test_аббревиатура_в_конце_не_обрубок
+  format: html
+  text: <p>Для средств защиты действует перечень СИЗ</p>
+  rules:
+  - truncation
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: real-truncation-is-caught
+  source: antagor tests/test_truncation.py::test_настоящий_обрыв_ловится (статья 3494)
+  format: html
+  text: '<p>Покрытие проверяют по нескольким показателям: стойкость к свету, к влаге и к механическому износу, и раздел заканчивался словами результат отдельного теста поверхности на истираем</p>'
+  rules:
+  - truncation
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: truncation
+      message: Блок обрывается на полуслове
+      excerpt: аканчивался словами результат отдельного теста поверхности на истираем
+      gate: true
+      unit: paragraph
+      address:
+        block: 0
+        anchor: 98058b00
+        quote: аканчивался словами результат отдельного теста поверхности на истираем
+      action: rewrite_block
+- id: short-heading-like-paragraph-is-not-truncation
+  source: antagor quality_checks.check_truncation (заголовок, оформленный абзацем)
+  format: html
+  text: <p>Импорт лодок из Китая и выбор поставщика</p>
+  rules:
+  - truncation
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []

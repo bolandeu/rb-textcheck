@@ -1,0 +1,40 @@
+# Корпус-контракт textcheck: leftovers. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: placeholder-left
+  source: antagor quality_checks.PLACEHOLDER_PATTERNS
+  format: md
+  text: Компания [вставить название] работает с 2010 года. Ещё {{city}} и TODO.
+  rules:
+  - placeholder
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: placeholder
+      message: Остался плейсхолдер вместо данных
+      excerpt: Компания [вставить название] работает с 2010 года. Ещё {{city}}
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+- id: self-reference
+  source: antagor quality_checks.SELF_REFERENCE_PATTERNS
+  format: md
+  text: Вот текст статьи про импорт. Как видно из контекста, рынок растёт.
+  rules:
+  - self_reference
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: self_reference
+      message: Обращение к себе/пояснение процесса генерации
+      excerpt: Вот текст статьи про импорт. Как видно из контекста, р
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual

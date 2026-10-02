@@ -1,0 +1,48 @@
+# Корпус-контракт textcheck: language. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: text-in-another-language
+  source: antagor quality_checks.check_language
+  format: md
+  text: The import of goods from China requires careful preparation of documents, selection of a reliable supplier and planning of the delivery route. Customs clearance depends on the product category and its classification code. Small companies usually work through agents who consolidate cargo in warehouses near the ports.
+  rules:
+  - language
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: language
+      message: 'Текст не на целевом языке: букв целевого алфавита 0% при минимуме 60%'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: short-text-is-not-judged
+  source: antagor quality_checks.check_language (меньше 200 букв)
+  format: md
+  text: Import of goods from China.
+  rules:
+  - language
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: language-off
+  source: antagor quality_profile.DEFAULTS (language.enabled)
+  format: md
+  profile:
+    language:
+      enabled: false
+  text: The import of goods from China requires careful preparation of documents, selection of a reliable supplier and planning of the delivery route. Customs clearance depends on the product category and its classification code. Small companies usually work through agents who consolidate cargo in warehouses near the ports.
+  rules:
+  - language
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 1
+      verdict: clean
+    issues: []

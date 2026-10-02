@@ -1,0 +1,121 @@
+# Корпус-контракт textcheck: headings. Формат - vectors/README.md.
+# Ожидания сняты с antagor 9a5e4d8 (utils/quality_checks.run_all, без LLM-контура).
+- id: colon-and-stamp-on-all-levels
+  source: antagor tests/test_language_rules.py::test_article_headings_all_levels (решение 2026-09-30)
+  format: html
+  profile: profiles/content-write.quality.yml
+  text: '<h2>Как рассчитывают фрахт</h2><h3>Ставка: из чего складывается</h3><h3>Фрахт простыми словами</h3><h2>Кто платит за перевозку</h2>'
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: headings
+      message: 'Разделов <h2>: 2, минимум 3'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: headings
+      message: Двоеточие в заголовке
+      excerpt: 'Ставка: из чего складывается'
+      gate: true
+      unit: phrase
+      address:
+        block: 1
+        anchor: c7a0a63e
+        quote: 'Ставка: из чего складывается'
+      action: rewrite_block
+    - rule: headings
+      message: Штамп в заголовке «простыми словами»
+      excerpt: Фрахт простыми словами
+      gate: true
+      unit: phrase
+      address:
+        block: 2
+        anchor: 2a3cd344
+        quote: Фрахт простыми словами
+      action: rewrite_block
+- id: stamp-ignores-yo
+  source: antagor tests/test_language_rules.py::test_heading_stamp_ignores_yo
+  format: html
+  text: <h2>Все, что нужно знать о фрахте</h2><h2>Как рассчитывают стоимость фрахта</h2>
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: headings
+      message: Штамп в заголовке «всё, что нужно знать»
+      excerpt: Все, что нужно знать о фрахте
+      gate: true
+      unit: phrase
+      address:
+        block: 0
+        anchor: e05c85cd
+        quote: Все, что нужно знать о фрахте
+      action: rewrite_block
+- id: too-few-sections
+  source: antagor profiles content-logistics (h2_min 4)
+  format: html
+  profile: profiles/content-logistics.quality.yml
+  text: <h2>Первый раздел</h2><p>Текст раздела.</p><h2>Второй раздел</h2><p>Ещё текст.</p>
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 1
+      verdict: clean
+    issues:
+    - rule: headings
+      message: 'Разделов <h2>: 2, минимум 4'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: too-many-sections
+  source: antagor quality_checks.check_headings (h2_max)
+  format: html
+  profile:
+    headings:
+      h2_max: 2
+  text: <h2>Один</h2><p>Текст.</p><h2>Два</h2><p>Текст.</p><h2>Три</h2><p>Текст.</p>
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: headings
+      message: 'Разделов <h2>: 3, максимум 2'
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: colon-allowed-when-profile-says-so
+  source: antagor quality_profile.DEFAULTS (headings.forbid_colon)
+  format: html
+  profile:
+    headings:
+      forbid_colon: false
+  text: '<h2>Ставка: из чего складывается</h2><p>Текст.</p>'
+  rules:
+  - headings
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []

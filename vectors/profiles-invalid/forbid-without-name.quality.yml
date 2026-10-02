@@ -1,0 +1,3 @@
+# элемент forbid без name
+forbid:
+  - regex: x

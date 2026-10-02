@@ -1,0 +1,4 @@
+# forbid должен быть списком
+forbid:
+  name: одно правило
+  regex: x
