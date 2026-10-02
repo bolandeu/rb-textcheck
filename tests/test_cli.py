@@ -320,12 +320,6 @@ def test_skill_install_writes_to_project_dir(tmp_path: Path, monkeypatch: pytest
     assert payload["path"] == str(installed)
 
 
-def test_run_dry_run_makes_no_changes(tmp_path: Path) -> None:
-    code, payload = invoke_json("--project", str(tmp_path), "run", "--dry-run")
-    assert code == 0
-    assert payload["result"] == "dry-run"
-
-
 # --- auth status without credentials (standard §8: every CLI has it) ----------
 
 

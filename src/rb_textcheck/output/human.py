@@ -30,3 +30,23 @@ def render_doctor(checks: list[dict]) -> None:
         mark = "[green]✓[/green]" if check["ok"] else "[red]✗[/red]"
         detail = f" ({check['detail']})" if check.get("detail") else ""
         console.print(f"{mark} {escape(check['name'] + detail)}")
+
+
+def render_check(report: dict) -> None:
+    """`check`: one line per finding (blocking ones marked), then humanizer and the gate."""
+    for issue in report["issues"]:
+        mark = "[red]✗[/red]" if issue["gate"] else "[yellow]•[/yellow]"
+        where = f" [dim]block {issue['address']['block']}[/dim]" if issue["address"] else ""
+        excerpt = f": «{escape(issue['excerpt'])}»" if issue["excerpt"] else ""
+        console.print(f"{mark} [bold]{escape(issue['rule'])}[/bold]{where} {escape(issue['message'])}{excerpt}")
+    humanizer = report["humanizer"]
+    if humanizer is not None:
+        console.print(f"humanizer: {humanizer['verdict']} (score {humanizer['score']})")
+    console.print("[red]gate failed[/red]" if report["gate_failed"] else "[green]gate passed[/green]")
+
+
+def render_rules(data: dict) -> None:
+    for rule in data["rules"]:
+        console.print(
+            f"[bold]{escape(rule['id'])}[/bold] [dim]({', '.join(rule['formats'])})[/dim] {escape(rule['description'])}"
+        )

@@ -1,0 +1,12 @@
+
+ Usage: textcheck rules [OPTIONS]
+
+ List the check rules: id (the `rule` of a finding), formats, description.
+
+ Example: textcheck rules --json
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json          Emit machine-readable JSON output.                                               │
+│ --help          Show this message and exit.                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

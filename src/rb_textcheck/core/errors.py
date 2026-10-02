@@ -119,6 +119,30 @@ class InvalidArguments(CliError):
         super().__init__("INVALID_ARGUMENTS", message, exit_code=2)
 
 
+class InvalidProfile(CliError):
+    """The quality profile (quality.yml) doesn't parse or doesn't match the schema."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(
+            "INVALID_PROFILE",
+            message,
+            action=f"Fix the profile; '{_CLI} profile validate <quality.yml>' checks it without a text.",
+            exit_code=2,
+        )
+
+
+class QualityGateFailed(CliError):
+    """The text has findings with gate=true. The report itself is emitted next to this error."""
+
+    def __init__(self, count: int) -> None:
+        super().__init__(
+            "QUALITY_GATE_FAILED",
+            f"Quality gate failed: {count} blocking finding(s).",
+            action="Fix the findings with gate=true (action=rewrite_block: the block at `address`) and check again.",
+            exit_code=1,
+        )
+
+
 class CredentialStoreUnavailable(CliError):
     def __init__(self, provider: str, reason: str) -> None:
         super().__init__(

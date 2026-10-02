@@ -5,7 +5,7 @@ from importlib import resources
 import typer
 
 from . import output
-from .commands import auth, describe, doctor, init, run, skill, status
+from .commands import auth, check, describe, doctor, init, profile, rules, skill, status
 from .commands import config as config_cmd
 from .core.version import DEV_VERSION, cli_name, installed_version, package_summary
 
@@ -22,11 +22,13 @@ app = typer.Typer(
 app.add_typer(config_cmd.app, name="config")
 app.add_typer(auth.app, name="auth")  # `auth status` in every CLI; login/logout only with credentials
 app.add_typer(skill.app, name="skill")
+app.add_typer(profile.app, name="profile")
 
 app.command(name="init")(init.init)
 app.command(name="status")(status.status)
 app.command(name="doctor")(doctor.doctor)
-app.command(name="run")(run.run)
+app.command(name="check")(check.check)
+app.command(name="rules")(rules.rules)
 app.command(name="describe")(describe.describe)
 
 

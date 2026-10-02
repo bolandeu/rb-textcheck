@@ -6,7 +6,7 @@ from pathlib import Path
 import tomli_w
 from packaging.version import Version
 
-from .errors import CliTooOld, ProjectNotInitialized
+from .errors import CliTooOld, InvalidArguments, InvalidProfile, ProjectNotInitialized, QualityGateFailed
 from .models import ProjectConfig
 from .version import installed_version
 
@@ -76,3 +76,53 @@ def init_project(project_root: Path, name: str) -> ProjectConfig:
     config = ProjectConfig(name=name)
     save_config(project_root, config)
     return config
+
+
+# --- textcheck ------------------------------------------------------------------
+# Checks import bs4/html5lib/pymorphy3: imported where used, so --help and
+# --version don't pay for them.
+
+MD_SUFFIXES = (".md", ".markdown")
+
+
+def read_text(path: Path) -> str:
+    """The text to check from a file; a missing or unreadable file is a bad argument (exit 2)."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
+        raise InvalidArguments(f"Cannot read '{path}': {getattr(e, 'strerror', None) or e}") from e
+
+
+def text_format(source: str, requested: str | None) -> str:
+    """--format, else by extension: .md/.markdown -> md, anything else and stdin -> html."""
+    from .checks import FORMATS
+
+    if requested is None:
+        return "md" if Path(source).suffix.lower() in MD_SUFFIXES else "html"
+    if requested not in FORMATS:
+        raise InvalidArguments(f"--format must be one of: {', '.join(FORMATS)} (got {requested!r}).")
+    return requested
+
+
+def _load_profile(path: Path | None):
+    from .profile import ProfileError, load_profile
+
+    try:
+        return load_profile(path)
+    except ProfileError as e:
+        raise InvalidProfile(str(e)) from e
+
+
+def run_check(text: str, profile_path: Path | None, fmt: str) -> tuple[dict, QualityGateFailed | None]:
+    """Report payload for `check` and the gate problem (None when the gate passed)."""
+    from .checks import check
+
+    result = check(text, _load_profile(profile_path), fmt)
+    blocking = sum(1 for issue in result.issues if issue.gate)
+    return result.as_dict(), (QualityGateFailed(blocking) if blocking else None)
+
+
+def validate_profile(path: Path) -> dict:
+    """`profile validate`: the profile parses, matches the schema, its regexes compile."""
+    profile = _load_profile(path)
+    return {"profile": str(path), "fingerprint": profile.fingerprint}

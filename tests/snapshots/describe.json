@@ -319,9 +319,41 @@
         ]
       },
       {
-        "name": "run",
-        "description": "Execute the project's main operation.\n\nExtension point: replace this body with a call into core.services (or a\nprovider) for this CLI's actual business logic.\n\nIf the real implementation changes external state, keep this shape:\ncheck `output.is_dry_run(ctx)` first and return a preview instead of\nacting, and — if the action is destructive/irreversible — call\n`output.require_confirmation(ctx, \"...\", confirm)` right before the\nchange itself (never before the dry-run preview).\n\nExample: textcheck run --dry-run",
+        "name": "check",
+        "description": "Check a text against a quality profile: findings, humanizer verdict, gate.\n\nDeterministic, no network and no LLM. Every finding has rule, message,\nexcerpt, gate, unit, address and action; `textcheck rules` lists the rules.\nExit 0: the gate passed (findings with gate=false are for information).\nExit 1: findings with gate=true — the report is still emitted (ok=false,\nerror QUALITY_GATE_FAILED). Exit 2: bad arguments or profile.\n\nExample: textcheck check article.html --profile content-logistics.quality.yml --json",
         "options": [
+          {
+            "name": "--profile",
+            "arguments": [
+              {
+                "name": "PROFILE",
+                "required": true
+              }
+            ],
+            "description": "Quality profile (quality.yml). Without it: built-in defaults only.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "path"
+              }
+            ]
+          },
+          {
+            "name": "--format",
+            "arguments": [
+              {
+                "name": "TEXT_FORMAT",
+                "required": true
+              }
+            ],
+            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          },
           {
             "name": "--json",
             "description": "Emit machine-readable JSON output.",
@@ -349,10 +381,33 @@
                 "value": false
               }
             ]
-          },
+          }
+        ],
+        "arguments": [
           {
-            "name": "--dry-run",
-            "description": "Show what would happen without making changes.",
+            "name": "source",
+            "required": true,
+            "arity": {
+              "minimum": 1,
+              "maximum": 1
+            },
+            "description": "Text file to check, or '-' for stdin.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "rules",
+        "description": "List the check rules: id (the `rule` of a finding), formats, description.\n\nExample: textcheck rules --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
             "metadata": [
               {
                 "name": "x-rb-type",
@@ -708,6 +763,63 @@
                   {
                     "name": "x-rb-default",
                     "value": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "profile",
+        "description": "Quality profiles (quality.yml).",
+        "commands": [
+          {
+            "name": "validate",
+            "description": "Validate a quality profile against the bundled JSON Schema and compile its regexes.\n\nExit 0: valid (prints its fingerprint — first 8 hex of sha1). Exit 2:\nINVALID_PROFILE with what is wrong and where.\n\nExample: textcheck profile validate content-logistics.quality.yml --json",
+            "options": [
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "path",
+                "required": true,
+                "arity": {
+                  "minimum": 1,
+                  "maximum": 1
+                },
+                "description": "Quality profile file (quality.yml).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "path"
                   }
                 ]
               }

@@ -4,6 +4,17 @@ Guidance for coding agents working on the **rb_textcheck** package
 itself (not its end users — see `src/rb_textcheck/data/SKILL.md` for
 that).
 
+## Corpus contract (vectors/)
+
+- `vectors/cases/*.yaml` is the behaviour contract (`tests/test_vectors.py`):
+  a check change that moves a finding changes a case, with the reason in
+  `source` or a comment — never adjust a case just to make the code pass.
+- Profiles are data of the `prompts` component; the format (and
+  `data/quality-profile.schema.json`) changes only through the user via dev —
+  send a proposal, don't change it here.
+- `core/humanizer_lint.py` is a third-party copy (MIT, Serge Shima): keep
+  rules in sync by porting diffs, keep the attribution and the license file.
+
 ## Development
 
 ```bash

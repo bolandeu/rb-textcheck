@@ -1,0 +1,19 @@
+
+ Usage: textcheck profile validate [OPTIONS] {path}
+
+ Validate a quality profile against the bundled JSON Schema and compile its regexes.
+
+ Exit 0: valid (prints its fingerprint — first 8 hex of sha1). Exit 2:
+ INVALID_PROFILE with what is wrong and where.
+
+ Example: textcheck profile validate content-logistics.quality.yml --json
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    path      <path>  Quality profile file (quality.yml). [required]                            │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Emit machine-readable JSON output.                                              │
+│ --quiet          Suppress non-essential output.                                                  │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

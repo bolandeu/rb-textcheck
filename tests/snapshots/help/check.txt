@@ -1,0 +1,25 @@
+
+ Usage: textcheck check [OPTIONS] {source}
+
+ Check a text against a quality profile: findings, humanizer verdict, gate.
+
+ Deterministic, no network and no LLM. Every finding has rule, message,
+ excerpt, gate, unit, address and action; `textcheck rules` lists the rules.
+ Exit 0: the gate passed (findings with gate=false are for information).
+ Exit 1: findings with gate=true — the report is still emitted (ok=false,
+ error QUALITY_GATE_FAILED). Exit 2: bad arguments or profile.
+
+ Example: textcheck check article.html --profile content-logistics.quality.yml --json
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    source      <str>  Text file to check, or '-' for stdin. [required]                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --profile        <path>  Quality profile (quality.yml). Without it: built-in defaults only.      │
+│ --format         <str>   html or md. Default: md for .md/.markdown files, html otherwise (and    │
+│                          for stdin).                                                             │
+│ --json                   Emit machine-readable JSON output.                                      │
+│ --quiet                  Suppress non-essential output.                                          │
+│ --help                   Show this message and exit.                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

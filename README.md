@@ -2,6 +2,42 @@
 
 Deterministic text quality checks by a quality profile (no network, no LLM)
 
+Перенос детерминированного слоя проверок antagor (`utils/quality_checks.py`,
+`humanizer_lint.py`, `quality_profile.py`, `text_blocks.py`, коммит `9a5e4d8`)
+в отдельный инструмент: без сети, без LLM.
+
+```bash
+textcheck check article.html --profile content-logistics.quality.yml --json
+cat article.md | textcheck check - --format md --json
+textcheck profile validate content-logistics.quality.yml
+textcheck rules --json
+```
+
+`check --json` → `{ok, issues[{rule, message, excerpt, gate, unit, address, action}],
+humanizer{score, verdict} | null, gate_failed}`. Коды выхода: `0` — гейт пройден
+(находки с `gate: false` — к сведению), `1` — есть находки с `gate: true`
+(отчёт выдаётся целиком, плюс `error.code = QUALITY_GATE_FAILED`), `2` —
+аргументы или профиль (`INVALID_ARGUMENTS`, `INVALID_PROFILE`).
+
+Библиотечно:
+
+```python
+import rb_textcheck
+
+result = rb_textcheck.check(text, "content-logistics.quality.yml", "html")  # профиль: путь | dict | None
+result.gate_failed, result.as_dict()
+```
+
+Профиль `quality.yml` — формат antagor `prompts/*.quality.yml` (секции `length`,
+`headings`, `tags`, `cliches`, `forbid`, `humanizer`, `language`, `grounding`,
+`judge_model`, `generation`; последние три textcheck не применяет). JSON Schema —
+`src/rb_textcheck/data/quality-profile.schema.json`.
+
+Поведение закреплено корпусом `vectors/` (формат — `vectors/README.md`).
+
+`core/humanizer_lint.py` — копия `lint.py` скилла humanizer-ru, автор Serge Shima,
+MIT: `src/rb_textcheck/data/LICENSE-humanizer-ru.txt`.
+
 ## Development
 
 ```bash
