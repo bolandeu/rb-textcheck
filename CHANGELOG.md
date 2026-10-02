@@ -9,3 +9,13 @@ one of added/changed/deprecated/removed/fixed/security), and
 `scripts/release.py` assembles them into a new section below the marker.
 
 <!-- towncrier release notes start -->
+
+## [0.1.0] - 2026-10-02
+
+### Added
+
+- textcheck check <file|-> [--profile quality.yml] [--format html|md] [--json]: deterministic text checks ported from antagor (quality_checks, humanizer_lint by Serge Shima, MIT); exit 0 gate passed, 1 gate failed (QUALITY_GATE_FAILED with the full report), 2 bad arguments or profile (INVALID_PROFILE). textcheck profile validate (bundled JSON Schema), textcheck rules. Library: rb_textcheck.check(text, profile, format).
+
+### Removed
+
+- The template's placeholder `run` command: `check` is the tool's operation.
