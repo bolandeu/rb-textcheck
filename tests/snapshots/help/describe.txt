@@ -1,0 +1,18 @@
+
+ Usage: textcheck describe [OPTIONS]
+
+ Print this CLI's machine-readable contract: an OpenCLI document (opencli.org).
+
+ Commands, options, arguments, exit codes, plus `x-rb-*` metadata: env vars,
+ tables, v1 views, data files, external programs. With --json it is the bare
+ document on one line (no {"ok": ...} envelope); without, the same indented.
+
+ Example: textcheck describe --json
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json             Emit machine-readable JSON output.                                            │
+│ --quiet            Suppress non-essential output.                                                │
+│ --verbose          Emit extra diagnostic output.                                                 │
+│ --help             Show this message and exit.                                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

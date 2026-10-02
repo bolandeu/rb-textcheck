@@ -1,0 +1,17 @@
+
+ Usage: textcheck config set [OPTIONS] {key} {value}
+
+ Set a single, non-secret configuration value.
+
+ Example: textcheck config set cli.min_version 0.2.0
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    key        <str>  Dotted config key, e.g. cli.min_version (see `config list`). [required]   │
+│ *    value      <str>  New value (stored as a string). [required]                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Emit machine-readable JSON output.                                              │
+│ --quiet          Suppress non-essential output.                                                  │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

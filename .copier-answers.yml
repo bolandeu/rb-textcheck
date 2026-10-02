@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v1.8.1
+_src_path: gh:bolandeu/cli-generator
+author_name: Roman Bolandau
+cli_name: textcheck
+description: Deterministic text quality checks by a quality profile (no network, no
+    LLM)
+dist_name: rb-textcheck
+dist_name_legacy: ''
+include_auth: false
+include_ci: false
+include_db: false
+include_providers: false
+package_name: rb_textcheck
+project_name: textcheck
+repository_url: https://github.com/bolandeu/textcheck

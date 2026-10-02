@@ -1,0 +1,14 @@
+
+ Usage: textcheck config [OPTIONS] COMMAND [ARGS]...
+
+ Manage project configuration.
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ list  List all configuration values.                                                             │
+│ get   Get a single configuration value.                                                          │
+│ set   Set a single, non-secret configuration value.                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

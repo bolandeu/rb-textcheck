@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+.python-version
+.coverage
+htmlcov/
+# mutmut's working copy and results (uv run --group mutation mutmut run)
+mutants/

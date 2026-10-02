@@ -1,0 +1,13 @@
+
+ Usage: textcheck config list [OPTIONS]
+
+ List all configuration values.
+
+ Example: textcheck config list --json
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Emit machine-readable JSON output.                                              │
+│ --quiet          Suppress non-essential output.                                                  │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

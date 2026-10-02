@@ -1,0 +1,13 @@
+
+ Usage: textcheck auth [OPTIONS] COMMAND [ARGS]...
+
+ Credentials: report their health (and store them, if this CLI has any).
+
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ status  Report every provider's credential: where it comes from and whether it works. Never      │
+│         prints values.                                                                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

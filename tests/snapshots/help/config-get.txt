@@ -1,0 +1,16 @@
+
+ Usage: textcheck config get [OPTIONS] {key}
+
+ Get a single configuration value.
+
+ Example: textcheck config get cli.min_version
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    key      <str>  Dotted config key, e.g. cli.min_version (see `config list`). [required]     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --json           Emit machine-readable JSON output.                                              │
+│ --quiet          Suppress non-essential output.                                                  │
+│ --help           Show this message and exit.                                                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

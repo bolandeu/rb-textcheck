@@ -1,0 +1,781 @@
+{
+  "opencli": "0.1",
+  "info": {
+    "title": "textcheck",
+    "version": "<version>",
+    "summary": "Deterministic text quality checks by a quality profile (no network, no LLM)"
+  },
+  "command": {
+    "name": "textcheck",
+    "options": [
+      {
+        "name": "--project",
+        "arguments": [
+          {
+            "name": "PROJECT",
+            "required": true
+          }
+        ],
+        "description": "Path to the project root.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "str"
+          }
+        ]
+      },
+      {
+        "name": "--json",
+        "description": "Emit machine-readable JSON output.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--quiet",
+        "description": "Suppress non-essential output.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--verbose",
+        "description": "Emit extra diagnostic output.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--non-interactive",
+        "description": "Never prompt; fail instead.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--dry-run",
+        "description": "Show what would happen without making changes.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--version",
+        "description": "Show the version and exit.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--ai",
+        "description": "Print AI-oriented usage documentation (the bundled skill doc) and exit.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          },
+          {
+            "name": "x-rb-default",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": "--install-completion",
+        "description": "Install completion for the current shell.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          }
+        ]
+      },
+      {
+        "name": "--show-completion",
+        "description": "Show completion for the current shell, to copy it or customize the installation.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "boolean"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "name": "init",
+        "description": "Initialize a project: creates .textcheck/config.toml in the target directory.\n\nExample: textcheck init --name demo",
+        "options": [
+          {
+            "name": "--name",
+            "arguments": [
+              {
+                "name": "NAME",
+                "required": true
+              }
+            ],
+            "description": "Project name (defaults to directory name).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          },
+          {
+            "name": "--force",
+            "description": "Overwrite an already-initialized project's config.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--verbose",
+            "description": "Emit extra diagnostic output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "status",
+        "description": "Show the current project's status.\n\nExample: textcheck status --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--verbose",
+            "description": "Emit extra diagnostic output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "doctor",
+        "description": "Run diagnostic checks and report readiness.\n\nAlways exits 0 — the report itself is the result; `healthy` says\nwhether every check passed.\n\nExample: textcheck doctor --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--verbose",
+            "description": "Emit extra diagnostic output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "run",
+        "description": "Execute the project's main operation.\n\nExtension point: replace this body with a call into core.services (or a\nprovider) for this CLI's actual business logic.\n\nIf the real implementation changes external state, keep this shape:\ncheck `output.is_dry_run(ctx)` first and return a preview instead of\nacting, and — if the action is destructive/irreversible — call\n`output.require_confirmation(ctx, \"...\", confirm)` right before the\nchange itself (never before the dry-run preview).\n\nExample: textcheck run --dry-run",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--dry-run",
+            "description": "Show what would happen without making changes.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "describe",
+        "description": "Print this CLI's machine-readable contract: an OpenCLI document (opencli.org).\n\nCommands, options, arguments, exit codes, plus `x-rb-*` metadata: env vars,\ntables, v1 views, data files, external programs. With --json it is the bare\ndocument on one line (no {\"ok\": ...} envelope); without, the same indented.\n\nExample: textcheck describe --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--verbose",
+            "description": "Emit extra diagnostic output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "config",
+        "description": "Manage project configuration.",
+        "commands": [
+          {
+            "name": "list",
+            "description": "List all configuration values.\n\nExample: textcheck config list --json",
+            "options": [
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "get",
+            "description": "Get a single configuration value.\n\nExample: textcheck config get cli.min_version",
+            "options": [
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "key",
+                "required": true,
+                "arity": {
+                  "minimum": 1,
+                  "maximum": 1
+                },
+                "description": "Dotted config key, e.g. cli.min_version (see `config list`).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "set",
+            "description": "Set a single, non-secret configuration value.\n\nExample: textcheck config set cli.min_version 0.2.0",
+            "options": [
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "key",
+                "required": true,
+                "arity": {
+                  "minimum": 1,
+                  "maximum": 1
+                },
+                "description": "Dotted config key, e.g. cli.min_version (see `config list`).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              },
+              {
+                "name": "value",
+                "required": true,
+                "arity": {
+                  "minimum": 1,
+                  "maximum": 1
+                },
+                "description": "New value (stored as a string).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "auth",
+        "description": "Credentials: report their health (and store them, if this CLI has any).",
+        "commands": [
+          {
+            "name": "status",
+            "description": "Report every provider's credential: where it comes from and whether it works. Never prints values.\n\nWithout --check only presence is reported (status `unchecked` or `missing`).\nExits 0 when every required provider is ok/unchecked (an optional one may be\nmissing), 3 when any required provider has a problem or any credential is\ninvalid/expired, 2 on a usage error. A per-target provider (one credential per\nsite/host/account) gets one entry per stored target, named `<kind>:<target>`. The --json shape is a cross-tool contract:\n`tool`, `version`, `checked_at`, `credentials[]` with `provider`, `required`,\n`fields`, `source`, `source_ref`, `status`, `expires_at`, `quota`, `message`.\n\nExample: textcheck auth status --check --json",
+            "options": [
+              {
+                "name": "--check",
+                "description": "Also make one cheap read-only call per provider (10 s timeout) to prove each works.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--provider",
+                "arguments": [
+                  {
+                    "name": "PROVIDER",
+                    "required": true
+                  }
+                ],
+                "description": "Report only this provider, or one target as <kind>:<target> (default: all).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              },
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "skill",
+        "description": "Install this CLI's agent skill for AI tools.",
+        "commands": [
+          {
+            "name": "install",
+            "description": "Copy this CLI's bundled SKILL.md into an AI tool's skill directory.\n\nExample: textcheck skill install --tool claude-code",
+            "options": [
+              {
+                "name": "--tool",
+                "arguments": [
+                  {
+                    "name": "TOOL",
+                    "required": true
+                  }
+                ],
+                "description": "Target AI tool: one of claude-code, agents.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": "claude-code"
+                  }
+                ]
+              },
+              {
+                "name": "--project",
+                "description": "Install into the current project instead of the user-level directory.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "exitCodes": [
+      {
+        "code": 0,
+        "description": "Success"
+      },
+      {
+        "code": 1,
+        "description": "General error (incl. UNEXPECTED and ABORTED)"
+      },
+      {
+        "code": 2,
+        "description": "Invalid arguments"
+      },
+      {
+        "code": 3,
+        "description": "Authentication error"
+      },
+      {
+        "code": 4,
+        "description": "Project not initialized"
+      },
+      {
+        "code": 5,
+        "description": "Provider error (external service: network, timeout, 5xx, 429, bad body)"
+      },
+      {
+        "code": 6,
+        "description": "CLI too old for this project or database"
+      }
+    ],
+    "metadata": [
+      {
+        "name": "x-rb-tool",
+        "value": {
+          "tool": "textcheck",
+          "dist": "rb-textcheck",
+          "package": "rb_textcheck"
+        }
+      },
+      {
+        "name": "x-rb-template-version",
+        "value": "<template-version>"
+      },
+      {
+        "name": "x-rb-env",
+        "value": []
+      },
+      {
+        "name": "x-rb-data",
+        "value": {
+          "user_data_dir": {
+            "appname": "textcheck",
+            "files": []
+          }
+        }
+      },
+      {
+        "name": "x-rb-external",
+        "value": []
+      }
+    ]
+  }
+}
