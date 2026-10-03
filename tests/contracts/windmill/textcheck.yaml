@@ -1,0 +1,63 @@
+# Контракт потребителя: windmill → textcheck (rb-textcheck), формат T18 static / run / view.
+# Источник — репо windmill; поставщик держит копию tests/contracts/windmill/textcheck.yaml.
+# Проверяется только то, на что опирается f/content/article (шаг механических проверок) и f/content/checks.
+contract: 1
+consumer: windmill
+provider: textcheck
+provider_range: ">=0.1,<1.0"
+contact: "агент windmill через dev"
+
+static:
+  commands:
+    - path: [check]
+      arguments: [source]
+      options: [--profile, --json]
+    - path: [describe]
+      options: [--json]
+  root_options: [--version]
+  exit_codes: [0, 1, 2]
+
+run:
+  - name: clean_text_ok
+    argv: [check, "{fixture_clean_article}", --json]
+    exit: 0
+    stdout_json_schema:
+      type: object
+      required: [ok, issues, gate_failed]
+      properties:
+        ok: {type: boolean}
+        gate_failed: {type: boolean}
+        humanizer: {type: object}
+        issues:
+          type: array
+          items:
+            type: object
+            required: [rule, message]
+            properties:
+              rule: {type: string}
+              message: {type: string}
+              gate: {type: boolean}      # true — жёсткое (валит статью), false — копится
+
+  - name: hard_issue_is_gate
+    # профиль фикстуры требует h2, в тексте их нет → exit 1, отчёт всё равно в stdout: ok=false,
+    # error QUALITY_GATE_FAILED, issue с gate=true, gate_failed=true (Windmill принимает код 1 как ответ)
+    argv: [check, "{fixture_article_without_h2}", --profile, "{fixture_profile_requires_h2}", --json]
+    exit: 1
+    stdout_json_schema:
+      type: object
+      required: [ok, error, issues, gate_failed]
+      properties:
+        ok: {const: false}
+        error: {type: object, required: [code], properties: {code: {const: QUALITY_GATE_FAILED}}}
+        gate_failed: {const: true}
+        issues: {contains: {type: object, properties: {gate: {const: true}}}}
+
+  - name: missing_file_is_json_error_exit_2
+    argv: [check, "/no/such/file.md", --json]
+    exit: 2
+    stdout_json_schema:
+      type: object
+      required: [ok, error]
+      properties: {ok: {const: false}, error: {type: object, required: [code, message]}}
+
+view: []
