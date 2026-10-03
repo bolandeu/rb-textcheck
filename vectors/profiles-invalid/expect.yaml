@@ -1,0 +1,26 @@
+# Невалидный профиль -> INVALID_PROFILE; сообщение содержит путь к ключу
+# (или суть отказа). Файл -> подстрока сообщения.
+bad-regex.quality.yml: forbid/0/regex
+broken-yaml.quality.yml: YAML
+forbid-not-a-list.quality.yml: forbid
+forbid-without-name.quality.yml: forbid/0
+forbid-without-regex-and-judge.quality.yml: forbid/0
+not-a-mapping.quality.yml: словарём
+unknown-section.quality.yml: lenght
+unknown-inner-key.quality.yml: length/min_char
+forbid-unknown-key.quality.yml: forbid/0/judje
+extends-cycle-a.quality.yml: цикл extends
+extends-cycle-b.quality.yml: цикл extends
+extends-self.quality.yml: цикл extends
+extends-missing.quality.yml: no-such-profile
+extends-kind-mismatch.quality.yml: kind
+fix-empty-from.quality.yml: fixes/0/from
+fix-bad-regex.quality.yml: fixes/0/from
+fix-bad-group.quality.yml: fixes/0/to
+fix-bad-where.quality.yml: fixes/0/where
+fix-unknown-rule.quality.yml: fixes/0/fixes_rule
+fix-without-to.quality.yml: fixes/0
+headings-required-bad-regex.quality.yml: headings/required/0/regex
+kind-unknown.quality.yml: kind
+meta-length-shape.quality.yml: length/seo.title
+meta-article-section.quality.yml: headings

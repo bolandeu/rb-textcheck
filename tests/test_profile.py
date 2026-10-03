@@ -81,3 +81,58 @@ def test_check_accepts_profile_forms() -> None:
 def test_check_rejects_unknown_format() -> None:
     with pytest.raises(ValueError):
         rb_textcheck.check("текст", None, "docx")
+
+
+# --- T78 B ----------------------------------------------------------------------
+
+
+def test_meta_profile_loads_as_meta() -> None:
+    profile = load_profile(VECTORS / "profiles" / "seo-meta.quality.yml")
+    assert profile.kind == "meta"
+
+
+def test_check_refuses_meta_profile() -> None:
+    with pytest.raises(ProfileError, match="kind"):
+        rb_textcheck.check("<p>т</p>", VECTORS / "profiles" / "seo-meta.quality.yml", "html")
+
+
+def test_unknown_inner_key_names_its_path(tmp_path: Path) -> None:
+    with pytest.raises(ProfileError, match=r"humanizer/max_warning\b"):
+        load_profile({"humanizer": {"max_warning": 3}})
+
+
+def test_extends_child_overrides_and_lists_merge() -> None:
+    profile = load_profile(VECTORS / "profiles" / "article-required.quality.yml")
+    assert [r.name for r in profile.forbid] == [r["name"] for r in PIPELINE_FORBID] + ["ставка НДС 20%", "бетон"]
+    assert profile.headings["h2_min"] == 2
+    assert profile.headings["forbid_colon"] is True
+
+
+def test_extends_fingerprint_covers_the_base(tmp_path: Path) -> None:
+    (tmp_path / "base.quality.yml").write_text("forbid:\n  - name: a\n    regex: a\n", encoding="utf-8")
+    child = tmp_path / "child.quality.yml"
+    child.write_text("extends: base\n", encoding="utf-8")
+    before = load_profile(child).fingerprint
+    (tmp_path / "base.quality.yml").write_text("forbid:\n  - name: b\n    regex: b\n", encoding="utf-8")
+    assert load_profile(child).fingerprint != before
+
+
+def test_extends_from_dict_resolves_against_cwd(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.chdir(VECTORS / "profiles")
+    assert [r.name for r in load_profile({"extends": "vat-22"}).forbid][-1] == "ставка НДС 20%"
+
+
+def test_vat_rule_is_not_in_code() -> None:
+    assert "ставка НДС 20%" not in [r["name"] for r in PIPELINE_FORBID]
+
+
+def test_profile_validate_meta_ok() -> None:
+    from typer.testing import CliRunner
+
+    from rb_textcheck.cli import app
+
+    result = CliRunner().invoke(
+        app, ["profile", "validate", str(VECTORS / "profiles" / "seo-meta.quality.yml"), "--json"]
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["kind"] == "meta"

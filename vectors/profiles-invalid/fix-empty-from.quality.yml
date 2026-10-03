@@ -1,0 +1,5 @@
+# пустой from
+fixes:
+  - name: пусто
+    from: ""
+    to: "x"

@@ -1,0 +1,2 @@
+# extends на самого себя
+extends: extends-self

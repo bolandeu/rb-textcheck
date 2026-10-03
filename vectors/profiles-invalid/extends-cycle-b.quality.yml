@@ -1,0 +1,2 @@
+# цикл extends: b -> a -> b
+extends: extends-cycle-a

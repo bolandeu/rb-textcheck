@@ -1,0 +1,338 @@
+# Корпус-контракт textcheck fix (T78 A). Формат - vectors/README.md.
+# addresses: каждый ожидаемый адрес - подмножество фактического (block для html, line для md).
+- id: x1-thirty-dashes
+  source: T78 X1 - 30 длинных тире -> 0, адреса блоков, разметка и порядок блоков не меняются (атрибут title не трогается)
+  format: html
+  profile: profiles/fix-typography.quality.yml
+  text: |
+    <h2>Один — два — три — четыре — пять — шесть</h2>
+    <p>Раз — два — три — четыре — пять — шесть.</p>
+    <ul><li>а — б — в — г — д — е</li><li>ж — з — и — к — л — м</li></ul>
+    <p class="x" title="a — b">Текст — с — атрибутом — и — тире — тут.</p>
+    <table><tr><td>я — ю — э — ь — ы — ъ</td></tr></table>
+  expect:
+    text: |
+      <h2>Один - два - три - четыре - пять - шесть</h2>
+      <p>Раз - два - три - четыре - пять - шесть.</p>
+      <ul><li>а - б - в - г - д - е</li><li>ж - з - и - к - л - м</li></ul>
+      <p class="x" title="a — b">Текст - с - атрибутом - и - тире - тут.</p>
+      <table><tr><td>я - ю - э - ь - ы - ъ</td></tr></table>
+    unchanged: false
+    applied:
+    - name: длинное тире
+      count: 30
+      addresses:
+      - block: 0
+      - block: 1
+      - block: 2
+      - block: 3
+      - block: 4
+      - block: 5
+- id: x3-already-fixed-is-unchanged
+  source: T78 X3 - второй прогон по исправленному тексту ничего не меняет
+  format: html
+  profile: profiles/fix-typography.quality.yml
+  text: |
+    <h2>Один - два - три - четыре - пять - шесть</h2>
+    <p>Раз - два - три - четыре - пять - шесть.</p>
+    <ul><li>а - б - в - г - д - е</li><li>ж - з - и - к - л - м</li></ul>
+    <p class="x" title="a — b">Текст - с - атрибутом - и - тире - тут.</p>
+    <table><tr><td>я - ю - э - ь - ы - ъ</td></tr></table>
+  expect:
+    text: |
+      <h2>Один - два - три - четыре - пять - шесть</h2>
+      <p>Раз - два - три - четыре - пять - шесть.</p>
+      <ul><li>а - б - в - г - д - е</li><li>ж - з - и - к - л - м</li></ul>
+      <p class="x" title="a — b">Текст - с - атрибутом - и - тире - тут.</p>
+      <table><tr><td>я - ю - э - ь - ы - ъ</td></tr></table>
+    unchanged: true
+    applied: []
+- id: x4-where-headings
+  source: T78 X4
+  format: html
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: headings
+  text: <h2>Всё о ёлках</h2><p>Ёлка и всё.</p><ul><li>всё</li></ul>
+  expect:
+    text: <h2>Все о елках</h2><p>Ёлка и всё.</p><ul><li>всё</li></ul>
+    unchanged: false
+    applied:
+    - name: ё
+      count: 2
+      addresses:
+      - block: 0
+- id: x4-where-paragraphs
+  source: T78 X4
+  format: html
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: paragraphs
+  text: <h2>Всё о ёлках</h2><p>Ёлка и всё.</p><ul><li>всё</li></ul>
+  expect:
+    text: <h2>Всё о ёлках</h2><p>Ёлка и все.</p><ul><li>всё</li></ul>
+    unchanged: false
+    applied:
+    - name: ё
+      count: 1
+      addresses:
+      - block: 1
+- id: x4-where-lists
+  source: T78 X4
+  format: html
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: lists
+  text: <h2>Всё о ёлках</h2><p>Ёлка и всё.</p><ul><li>всё</li></ul>
+  expect:
+    text: <h2>Всё о ёлках</h2><p>Ёлка и всё.</p><ul><li>все</li></ul>
+    unchanged: false
+    applied:
+    - name: ё
+      count: 1
+      addresses:
+      - block: 2
+- id: x4-where-text-is-everywhere
+  source: T78 X4 - where по умолчанию text
+  format: html
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+  text: <h2>Всё о ёлках</h2><p>Ёлка и всё.</p><ul><li>всё</li></ul>
+  expect:
+    text: <h2>Все о елках</h2><p>Ёлка и все.</p><ul><li>все</li></ul>
+    unchanged: false
+    applied:
+    - name: ё
+      count: 4
+      addresses:
+      - block: 0
+      - block: 1
+      - block: 2
+- id: x4-md-where-headings
+  source: T78 X4 (md)
+  format: md
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: headings
+  text: |
+    ## Всё о ёлках
+
+    Ёлка и всё.
+
+    - всё
+    1. ёж
+  expect:
+    text: |
+      ## Все о елках
+
+      Ёлка и всё.
+
+      - всё
+      1. ёж
+    unchanged: false
+    applied:
+    - name: ё
+      count: 2
+      addresses:
+      - line: 1
+- id: x4-md-where-paragraphs
+  source: T78 X4 (md)
+  format: md
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: paragraphs
+  text: |
+    ## Всё о ёлках
+
+    Ёлка и всё.
+
+    - всё
+    1. ёж
+  expect:
+    text: |
+      ## Всё о ёлках
+
+      Ёлка и все.
+
+      - всё
+      1. ёж
+    unchanged: false
+    applied:
+    - name: ё
+      count: 1
+      addresses:
+      - line: 3
+- id: x4-md-where-lists
+  source: T78 X4 (md)
+  format: md
+  profile:
+    fixes:
+    - name: ё
+      from: ё
+      to: е
+      where: lists
+  text: |
+    ## Всё о ёлках
+
+    Ёлка и всё.
+
+    - всё
+    1. ёж
+  expect:
+    text: |
+      ## Всё о ёлках
+
+      Ёлка и всё.
+
+      - все
+      1. еж
+    unchanged: false
+    applied:
+    - name: ё
+      count: 2
+      addresses:
+      - line: 5
+      - line: 6
+- id: x5-regex-groups
+  source: T78 X5 - regex с группами
+  format: html
+  profile:
+    fixes:
+    - name: диапазон дней
+      from: (\d+)\s*-\s*(\d+)\s*дн
+      to: от \1 до \2 дн
+      regex: true
+  text: <p>Срок 10-15 дней и 3 - 5 дн.</p>
+  expect:
+    text: <p>Срок от 10 до 15 дней и от 3 до 5 дн.</p>
+    unchanged: false
+    applied:
+    - name: диапазон дней
+      count: 2
+      addresses:
+      - block: 0
+- id: x6-no-fixes
+  source: T78 X6 - без fixes текст не меняется
+  format: html
+  text: |
+    <h2>Один — два — три — четыре — пять — шесть</h2>
+    <p>Раз — два — три — четыре — пять — шесть.</p>
+    <ul><li>а — б — в — г — д — е</li><li>ж — з — и — к — л — м</li></ul>
+    <p class="x" title="a — b">Текст — с — атрибутом — и — тире — тут.</p>
+    <table><tr><td>я — ю — э — ь — ы — ъ</td></tr></table>
+  expect:
+    text: |
+      <h2>Один — два — три — четыре — пять — шесть</h2>
+      <p>Раз — два — три — четыре — пять — шесть.</p>
+      <ul><li>а — б — в — г — д — е</li><li>ж — з — и — к — л — м</li></ul>
+      <p class="x" title="a — b">Текст — с — атрибутом — и — тире — тут.</p>
+      <table><tr><td>я — ю — э — ь — ы — ъ</td></tr></table>
+    unchanged: true
+    applied: []
+- id: x7-protected-html
+  source: T78 X7 - code/pre/script/style, href и голые URL, атрибуты alt/title не трогаются
+  format: html
+  profile: profiles/fix-typography.quality.yml
+  text: |
+    <p>Тире — тут, <code>a — b</code>, ссылка <a href="https://ex.com/a—b" title="x — y">текст — ссылки</a>, голая https://ex.com/путь—тут и <img alt="альт — текст" src="i.png"> конец — да.</p><pre>код — тоже</pre><script>var a = "x — y";</script><style>p::after{content:"—"}</style>
+  expect:
+    text: |
+      <p>Тире - тут, <code>a — b</code>, ссылка <a href="https://ex.com/a—b" title="x — y">текст - ссылки</a>, голая https://ex.com/путь—тут и <img alt="альт — текст" src="i.png"> конец - да.</p><pre>код — тоже</pre><script>var a = "x — y";</script><style>p::after{content:"—"}</style>
+    unchanged: false
+    applied:
+    - name: длинное тире
+      count: 3
+      addresses:
+      - block: 0
+- id: x7-protected-md
+  source: 'T78 X7 - md: блоки ``` и `инлайн`, адреса ссылок и голые URL не трогаются'
+  format: md
+  profile: profiles/fix-typography.quality.yml
+  text: |
+    # Заголовок — один
+
+    Текст — тут и `код — инлайн`, ссылка [текст — ссылки](https://ex.com/a—b) и https://ex.com/x—y.
+
+    ```
+    блок — кода
+    ```
+
+    - пункт — списка
+  expect:
+    text: |
+      # Заголовок - один
+
+      Текст - тут и `код — инлайн`, ссылка [текст - ссылки](https://ex.com/a—b) и https://ex.com/x—y.
+
+      ```
+      блок — кода
+      ```
+
+      - пункт - списка
+    unchanged: false
+    applied:
+    - name: длинное тире
+      count: 4
+      addresses:
+      - line: 1
+      - line: 3
+      - line: 9
+- id: x8-profile-order
+  source: 'T78 X8 - замены по порядку профиля: вторая видит результат первой'
+  format: html
+  profile:
+    fixes:
+    - name: a
+      from: кот
+      to: пёс
+    - name: b
+      from: пёс
+      to: волк
+  text: <p>кот и пёс</p>
+  expect:
+    text: <p>волк и волк</p>
+    unchanged: false
+    applied:
+    - name: a
+      count: 1
+      addresses:
+      - block: 0
+    - name: b
+      count: 2
+      addresses:
+      - block: 0
+- id: extends-merges-fixes-base-first
+  source: 'T78 B4 - fix-child extends fix-typography: fixes объединяются, базовые первыми'
+  format: html
+  profile: profiles/fix-child.quality.yml
+  text: <p>Цена — 10 руб.</p>
+  expect:
+    text: <p>Цена - 10 руб.</p>
+    unchanged: false
+    applied:
+    - name: длинное тире
+      count: 1
+      addresses:
+      - block: 0
+    - name: неразрывный пробел
+      count: 2
+      addresses:
+      - block: 0

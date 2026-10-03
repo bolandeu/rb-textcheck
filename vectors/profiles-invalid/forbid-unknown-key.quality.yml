@@ -1,0 +1,5 @@
+# неизвестный ключ в элементе forbid
+forbid:
+  - name: x
+    regex: y
+    judje: z

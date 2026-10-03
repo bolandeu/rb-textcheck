@@ -1,0 +1,4 @@
+# в kind: meta длина поля - [min, max]
+kind: meta
+length:
+  seo.title: 40

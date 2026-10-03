@@ -1,0 +1,4 @@
+# секции статьи в kind: meta не допускаются
+kind: meta
+headings:
+  h2_min: 1

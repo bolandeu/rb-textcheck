@@ -1,0 +1,6 @@
+# regex не компилируется
+fixes:
+  - name: битый
+    from: "(незакрыта"
+    to: "x"
+    regex: true

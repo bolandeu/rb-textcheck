@@ -1,0 +1,10 @@
+# Автозамены (textcheck fix): что на что менять, решает профиль, а не код.
+fixes:
+  - name: длинное тире
+    from: "—"
+    to: "-"
+    fixes_rule: "humanizer: 23 длинное тире"
+  - name: среднее тире
+    from: "–"
+    to: "-"
+    fixes_rule: "humanizer: 23 длинное тире"

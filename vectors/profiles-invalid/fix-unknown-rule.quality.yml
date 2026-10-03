@@ -1,0 +1,6 @@
+# fixes_rule - id правила из textcheck rules (+ ": текст")
+fixes:
+  - name: тире
+    from: "—"
+    to: "-"
+    fixes_rule: dash

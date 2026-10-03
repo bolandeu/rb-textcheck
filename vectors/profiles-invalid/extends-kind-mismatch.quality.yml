@@ -1,0 +1,3 @@
+# kind дочернего и базового расходятся
+kind: article
+extends: ../profiles/seo-meta.quality.yml

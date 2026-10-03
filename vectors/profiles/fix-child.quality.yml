@@ -1,0 +1,6 @@
+# fixes объединяются с базовыми: сначала замены базового профиля, потом свои.
+extends: fix-typography.quality.yml
+fixes:
+  - name: неразрывный пробел
+    from: " "
+    to: " "

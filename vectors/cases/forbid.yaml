@@ -88,8 +88,9 @@
       verdict: clean
     issues: []
 - id: pipeline-forbid-vat-20
-  source: antagor quality_profile.PIPELINE_FORBID (решение 2026-09-28, ost 356)
+  source: antagor quality_profile.PIPELINE_FORBID (решение 2026-09-28, ost 356); с 0.2.0 запрет живёт в профиле (T78 B5)
   format: md
+  profile: profiles/vat-22.quality.yml
   text: Цена кода с НДС 20% составляет 60 копеек. НДС 20 000 рублей платится отдельно.
   rules:
   - forbid
@@ -271,3 +272,42 @@
       score: 0
       verdict: clean
     issues: []
+- id: vat-20-is-not-in-code
+  source: T78 B5 - запрет «ставка НДС 20%» убран из кода; без профиля его нет
+  format: md
+  text: Цена кода с НДС 20% составляет 60 копеек. НДС 20 000 рублей платится отдельно.
+  rules:
+  - forbid
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: extends-merges-forbid-base-first
+  source: T78 B4 - article-required extends vat-22, списки forbid объединяются (базовые первыми)
+  format: md
+  profile: profiles/article-required.quality.yml
+  text: Цена с НДС 20% выросла. Класс бетона B25.
+  rules:
+  - forbid
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: forbid
+      message: Нарушен запрет «ставка НДС 20%»
+      excerpt: Цена с НДС 20% выросла. Класс бетона B25.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual
+    - rule: forbid
+      message: Нарушен запрет «бетон»
+      excerpt: Цена с НДС 20% выросла. Класс бетона B25.
+      gate: true
+      unit: paragraph
+      address: null
+      action: manual

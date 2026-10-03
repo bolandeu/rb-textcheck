@@ -119,3 +119,63 @@
       score: 0
       verdict: clean
     issues: []
+- id: required-h2-present
+  source: T78 B2 - headings.required, строка без учёта регистра и точки, паттерн regex
+  format: html
+  profile: profiles/article-required.quality.yml
+  text: <h2>Как выбрать поставщика</h2><p>Текст про выбор.</p><h2>ЧАСТЫЕ ВОПРОСЫ.</h2><p>Ответы тут.</p>
+  rules:
+  - headings
+  expect:
+    gate_failed: false
+    humanizer:
+      score: 0
+      verdict: clean
+    issues: []
+- id: required-h2-missing
+  source: T78 B2 - нет обязательного раздела -> находка на всю статью, гейт
+  format: html
+  profile: profiles/article-required.quality.yml
+  text: <h2>Как выбрать поставщика</h2><p>Текст.</p><h2>Доставка</h2><p>Текст.</p>
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: headings
+      message: Нет обязательного раздела <h2> «Частые вопросы»
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+- id: required-h2-counts-only-h2
+  source: T78 B2 - раздел обязателен как <h2>; <h3> с тем же текстом не засчитывается, строка - заголовок целиком
+  format: html
+  profile: profiles/article-required.quality.yml
+  text: <h2>Доставка</h2><p>т.</p><h3>Частые вопросы</h3><p>т.</p><h2>Частые вопросы и ответы</h2><p>т.</p>
+  rules:
+  - headings
+  expect:
+    gate_failed: true
+    humanizer:
+      score: 0
+      verdict: clean
+    issues:
+    - rule: headings
+      message: Нет обязательного раздела <h2> «Частые вопросы»
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual
+    - rule: headings
+      message: Нет обязательного раздела <h2> «Как выбрать»
+      excerpt: ''
+      gate: true
+      unit: article
+      address: null
+      action: manual

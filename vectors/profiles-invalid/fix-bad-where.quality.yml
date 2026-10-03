@@ -1,0 +1,6 @@
+# where - только text|headings|paragraphs|lists
+fixes:
+  - name: где
+    from: "a"
+    to: "b"
+    where: everywhere

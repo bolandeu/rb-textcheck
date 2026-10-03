@@ -34,8 +34,27 @@ antagor: `utils/quality_checks.run_all` с отключённым вторым �
       - {rule, message, excerpt, gate, unit, address, action}
 ```
 
+## Автозамены (`fix/*.yaml` — список, T78 A)
+
+```yaml
+- id: x1-thirty-dashes
+  source: T78 X1 ...
+  format: html | md
+  profile: profiles/fix-typography.quality.yml   # как в cases
+  text: "<p>...</p>"
+  expect:
+    text: "<p>...</p>"                   # текст после всех замен, байт в байт
+    unchanged: false
+    applied:                             # только сработавшие замены, в порядке профиля
+      - {name: длинное тире, count: 30, addresses: [{block: 0}]}   # html: block; md: line
+```
+
+Ожидаемый адрес — подмножество фактического (в html есть ещё `anchor`).
+
 ## Профили
 
 - `profiles/*.quality.yml` — образцы из antagor, должны проходить
   `textcheck profile validate`.
-- `profiles-invalid/*.quality.yml` — каждый должен давать отказ (код 2).
+- `profiles-invalid/*.quality.yml` — каждый должен давать отказ (код 2,
+  `INVALID_PROFILE`); `profiles-invalid/expect.yaml` — какая подстрока (путь к
+  ключу или суть отказа) должна быть в сообщении.
