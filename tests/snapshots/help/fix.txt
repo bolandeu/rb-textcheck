@@ -1,0 +1,31 @@
+
+ Usage: textcheck fix [OPTIONS] {source}
+
+ Apply the profile's mechanical replacements (fixes) and print the fixed text.
+
+ Deterministic, no LLM: what to replace with what is in the profile, in
+ its order. Only the text a reader sees changes — HTML text nodes (tags,
+ attributes and block order stay byte for byte), md outside code; code,
+ pre, script, style, md code, link targets and bare URLs are never touched.
+ Default output: the fixed text on stdout, a summary on stderr. --json:
+ {ok, text, applied[{name, count, addresses}], unchanged}; with --check
+ also check's {issues, humanizer, gate_failed} and its exit code.
+ Exit 2: bad arguments or profile (INVALID_PROFILE) — no text is printed.
+
+ Example: textcheck fix article.html --profile typography.quality.yml --check --json
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────╮
+│ *    source      <str>  Text file to fix, or '-' for stdin. [required]                           │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --profile        <path>  Quality profile (quality.yml) with a `fixes` section. Without fixes:    │
+│                          text unchanged.                                                         │
+│ --format         <str>   html or md. Default: md for .md/.markdown files, html otherwise (and    │
+│                          for stdin).                                                             │
+│ --check                  Run check on the fixed text and exit with its code (0 gate passed, 1    │
+│                          failed).                                                                │
+│ --json                   Emit machine-readable JSON output.                                      │
+│ --quiet                  Suppress non-essential output.                                          │
+│ --help                   Show this message and exit.                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+

@@ -9,6 +9,8 @@ Deterministic text quality checks by a quality profile (no network, no LLM)
 ```bash
 textcheck check article.html --profile content-logistics.quality.yml --json
 cat article.md | textcheck check - --format md --json
+textcheck fix article.html --profile typography.quality.yml > fixed.html
+textcheck fix article.html --profile typography.quality.yml --check --json
 textcheck profile validate content-logistics.quality.yml
 textcheck rules --json
 ```
@@ -19,6 +21,12 @@ humanizer{score, verdict} | null, gate_failed}`. Коды выхода: `0` — 
 (отчёт выдаётся целиком, плюс `error.code = QUALITY_GATE_FAILED`), `2` —
 аргументы или профиль (`INVALID_ARGUMENTS`, `INVALID_PROFILE`).
 
+`fix` — механические автозамены из секции профиля `fixes` (`{name, from, to,
+regex, where, fixes_rule}`), по порядку, только в тексте (теги, атрибуты, код,
+адреса ссылок и голые URL не трогаются). По умолчанию — исправленный текст в
+stdout; `--json` → `{ok, text, applied[{name, count, addresses}], unchanged}`;
+`--check` — плюс отчёт `check` по результату и его код выхода.
+
 Библиотечно:
 
 ```python
@@ -26,11 +34,15 @@ import rb_textcheck
 
 result = rb_textcheck.check(text, "content-logistics.quality.yml", "html")  # профиль: путь | dict | None
 result.gate_failed, result.as_dict()
+fixed = rb_textcheck.fix(text, "typography.quality.yml", "html")  # .text, .applied, .unchanged
 ```
 
-Профиль `quality.yml` — формат antagor `prompts/*.quality.yml` (секции `length`,
-`headings`, `tags`, `cliches`, `forbid`, `humanizer`, `language`, `grounding`,
-`judge_model`, `generation`; последние три textcheck не применяет). JSON Schema —
+Профиль `quality.yml` — формат antagor `prompts/*.quality.yml`: `kind: article`
+(по умолчанию; секции `length`, `headings` (+ `required`), `tags`, `cliches`,
+`forbid`, `fixes`, `humanizer`, `language`, `grounding`, `judge_model`,
+`generation` — последние три textcheck не применяет) или `kind: meta` (профиль
+seo-meta, только валидация). `extends: <имя|путь>` — наследование. Неизвестный
+ключ на любом уровне — ошибка. JSON Schema —
 `src/rb_textcheck/data/quality-profile.schema.json`.
 
 Поведение закреплено корпусом `vectors/` (формат — `vectors/README.md`).

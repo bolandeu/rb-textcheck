@@ -104,11 +104,12 @@ def text_format(source: str, requested: str | None) -> str:
     return requested
 
 
-def _load_profile(path: Path | None):
+def _load_profile(path: Path | None, *, article: bool = True):
     from .profile import ProfileError, load_profile
 
     try:
-        return load_profile(path)
+        profile = load_profile(path)
+        return profile.require_article() if article else profile
     except ProfileError as e:
         raise InvalidProfile(str(e)) from e
 
@@ -122,7 +123,21 @@ def run_check(text: str, profile_path: Path | None, fmt: str) -> tuple[dict, Qua
     return result.as_dict(), (QualityGateFailed(blocking) if blocking else None)
 
 
+def run_fix(
+    text: str, profile_path: Path | None, fmt: str, *, then_check: bool
+) -> tuple[dict, QualityGateFailed | None]:
+    """`fix`: the fixed text and applied fixes; with then_check, the check report of the fixed text next to them."""
+    from .fix import fix
+
+    profile = _load_profile(profile_path)
+    payload = fix(text, profile, fmt).as_dict()
+    if not then_check:
+        return payload, None
+    report, problem = run_check(payload["text"], profile_path, fmt)
+    return {**payload, **report}, problem
+
+
 def validate_profile(path: Path) -> dict:
-    """`profile validate`: the profile parses, matches the schema, its regexes compile."""
-    profile = _load_profile(path)
-    return {"profile": str(path), "fingerprint": profile.fingerprint}
+    """`profile validate`: the profile (with its extends chain) parses, matches the schema, its regexes compile."""
+    profile = _load_profile(path, article=False)
+    return {"profile": str(path), "kind": profile.kind, "fingerprint": profile.fingerprint}

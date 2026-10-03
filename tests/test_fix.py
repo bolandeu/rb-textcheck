@@ -170,3 +170,10 @@ def test_fix_meta_profile_is_refused(tmp_path: Path) -> None:
     result = run("fix", str(path), "--profile", str(VECTORS / "profiles" / "seo-meta.quality.yml"), "--json")
     assert result.exit_code == 2
     assert json.loads(result.stdout)["error"]["code"] == "INVALID_PROFILE"
+
+
+def test_fix_quiet_still_prints_text() -> None:
+    result = run("fix", "-", "--profile", str(TYPO), "--quiet", stdin="<p>а — б</p>")
+    assert result.exit_code == 0
+    assert result.stdout == "<p>а - б</p>"
+    assert result.stderr == ""

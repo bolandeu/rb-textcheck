@@ -402,6 +402,103 @@
         ]
       },
       {
+        "name": "fix",
+        "description": "Apply the profile's mechanical replacements (fixes) and print the fixed text.\n\nDeterministic, no LLM: what to replace with what is in the profile, in\nits order. Only the text a reader sees changes — HTML text nodes (tags,\nattributes and block order stay byte for byte), md outside code; code,\npre, script, style, md code, link targets and bare URLs are never touched.\nDefault output: the fixed text on stdout, a summary on stderr. --json:\n{ok, text, applied[{name, count, addresses}], unchanged}; with --check\nalso check's {issues, humanizer, gate_failed} and its exit code.\nExit 2: bad arguments or profile (INVALID_PROFILE) — no text is printed.\n\nExample: textcheck fix article.html --profile typography.quality.yml --check --json",
+        "options": [
+          {
+            "name": "--profile",
+            "arguments": [
+              {
+                "name": "PROFILE",
+                "required": true
+              }
+            ],
+            "description": "Quality profile (quality.yml) with a `fixes` section. Without fixes: text unchanged.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "path"
+              }
+            ]
+          },
+          {
+            "name": "--format",
+            "arguments": [
+              {
+                "name": "TEXT_FORMAT",
+                "required": true
+              }
+            ],
+            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          },
+          {
+            "name": "--check",
+            "description": "Run check on the fixed text and exit with its code (0 gate passed, 1 failed).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ],
+        "arguments": [
+          {
+            "name": "source",
+            "required": true,
+            "arity": {
+              "minimum": 1,
+              "maximum": 1
+            },
+            "description": "Text file to fix, or '-' for stdin.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "rules",
         "description": "List the check rules: id (the `rule` of a finding), formats, description.\n\nExample: textcheck rules --json",
         "options": [
@@ -776,7 +873,7 @@
         "commands": [
           {
             "name": "validate",
-            "description": "Validate a quality profile against the bundled JSON Schema and compile its regexes.\n\nExit 0: valid (prints its fingerprint — first 8 hex of sha1). Exit 2:\nINVALID_PROFILE with what is wrong and where.\n\nExample: textcheck profile validate content-logistics.quality.yml --json",
+            "description": "Validate a quality profile against the bundled JSON Schema and compile its regexes.\n\nFollows `extends` (each base is validated too; a cycle is an error). Any\nunknown key, at any level, is an error. Both kinds validate: article\n(check/fix) and meta (antagor seo-meta). Exit 0: valid — prints kind and\nfingerprint (first 8 hex of sha1 of the profile and its bases). Exit 2:\nINVALID_PROFILE with the path to the key and what is wrong.\n\nExample: textcheck profile validate content-logistics.quality.yml --json",
             "options": [
               {
                 "name": "--json",

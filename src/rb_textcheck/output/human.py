@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 from rich.console import Console
 from rich.markup import escape
 
@@ -50,3 +52,20 @@ def render_rules(data: dict) -> None:
         console.print(
             f"[bold]{escape(rule['id'])}[/bold] [dim]({', '.join(rule['formats'])})[/dim] {escape(rule['description'])}"
         )
+
+
+def write_text(text: str) -> None:
+    """Text as data, byte for byte: no rich markup, no added newline."""
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
+def render_fix(report: dict) -> None:
+    """`fix` summary on stderr (the text itself is written by the command): replacements, check report."""
+    applied = ", ".join(f"{a['name']} ×{a['count']}" for a in report["applied"]) or "no replacements"
+    err_console.print(f"fix: {escape(applied)}")
+    if "issues" in report:
+        for issue in report["issues"]:
+            mark = "✗" if issue["gate"] else "•"
+            err_console.print(f"{mark} {escape(issue['rule'])}: {escape(issue['message'])}")
+        err_console.print("gate failed" if report["gate_failed"] else "gate passed")

@@ -136,3 +136,10 @@ def test_profile_validate_meta_ok() -> None:
     )
     assert result.exit_code == 0
     assert json.loads(result.stdout)["kind"] == "meta"
+
+
+def test_schema_fixes_rule_ids_match_rules() -> None:
+    """fixes_rule в схеме перечисляет id правил - тот же список, что `textcheck rules`."""
+    pattern = _schema()["$defs"]["article"]["properties"]["fixes"]["items"]["properties"]["fixes_rule"]["pattern"]
+    ids = pattern.removeprefix("^(").split(")")[0].split("|")
+    assert ids == [r["id"] for r in rb_textcheck.rules()]

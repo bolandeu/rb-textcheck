@@ -1,14 +1,15 @@
 """rb_textcheck - детерминированные проверки текста по профилю качества.
 
 Библиотечно: ``rb_textcheck.check(text, profile, format)`` -> Result
-(``.issues``, ``.humanizer``, ``.gate_failed``, ``.as_dict()``).
+(``.issues``, ``.humanizer``, ``.gate_failed``, ``.as_dict()``);
+``rb_textcheck.fix(text, profile, format)`` -> FixResult (``.text``, ``.applied``, ``.unchanged``).
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-__all__ = ["ProfileError", "QualityProfile", "Result", "check", "load_profile", "rules"]
+__all__ = ["FixResult", "ProfileError", "QualityProfile", "Result", "check", "fix", "load_profile", "rules"]
 
 
 def rules() -> list[dict[str, Any]]:
@@ -24,6 +25,10 @@ def __getattr__(name: str) -> Any:
         from .core import checks
 
         return getattr(checks, name)
+    if name in ("fix", "FixResult"):
+        from .core import fix
+
+        return getattr(fix, name)
     if name in ("load_profile", "ProfileError", "QualityProfile"):
         from .core import profile
 

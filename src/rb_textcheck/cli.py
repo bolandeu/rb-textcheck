@@ -5,7 +5,7 @@ from importlib import resources
 import typer
 
 from . import output
-from .commands import auth, check, describe, doctor, init, profile, rules, skill, status
+from .commands import auth, check, describe, doctor, fix, init, profile, rules, skill, status
 from .commands import config as config_cmd
 from .core.version import DEV_VERSION, cli_name, installed_version, package_summary
 
@@ -28,6 +28,7 @@ app.command(name="init")(init.init)
 app.command(name="status")(status.status)
 app.command(name="doctor")(doctor.doctor)
 app.command(name="check")(check.check)
+app.command(name="fix")(fix.fix)
 app.command(name="rules")(rules.rules)
 app.command(name="describe")(describe.describe)
 

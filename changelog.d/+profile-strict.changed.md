@@ -1,0 +1,1 @@
+Breaking: unknown keys inside profile sections (and in forbid items) are now INVALID_PROFILE, with the path to the key (length/min_char); a profile that antagor accepted with a typo inside a section is refused.

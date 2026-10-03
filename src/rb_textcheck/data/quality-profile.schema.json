@@ -2,87 +2,404 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/bolandeu/textcheck/quality-profile.schema.json",
   "title": "quality.yml",
-  "description": "Профиль качества текста (формат antagor prompts/*.quality.yml). Секции сливаются с дефолтами по отдельным ключам; неизвестная секция верхнего уровня - ошибка.",
+  "description": "Профиль качества текста (формат antagor prompts/*.quality.yml). kind: article (по умолчанию) или meta. Секции сливаются с дефолтами и базовым профилем (extends) по отдельным ключам; неизвестный ключ на любом уровне - ошибка.",
   "type": "object",
-  "additionalProperties": false,
-  "$defs": {
-    "count": {"type": ["integer", "null"], "minimum": 0},
-    "strings": {"type": ["array", "null"], "items": {"type": "string"}}
+  "if": {
+    "required": [
+      "kind"
+    ],
+    "properties": {
+      "kind": {
+        "const": "meta"
+      }
+    }
   },
-  "properties": {
-    "length": {
-      "description": "Длина чистого текста без разметки, в символах.",
-      "type": "object",
-      "properties": {
-        "min_chars": {"$ref": "#/$defs/count"},
-        "max_chars": {"$ref": "#/$defs/count"},
-        "tolerance": {"type": "number", "minimum": 0, "description": "Допуск к границам, доля (0.1 = 10%)."},
-        "gate": {"type": "boolean", "description": "false - нехватка длины к сведению, не валит текст. Превышение максимума не валит никогда."}
-      }
-    },
-    "headings": {
-      "type": "object",
-      "properties": {
-        "h2_min": {"$ref": "#/$defs/count"},
-        "h2_max": {"$ref": "#/$defs/count"},
-        "forbid_colon": {"type": "boolean", "description": "Двоеточие в любом заголовке h2-h6 - нарушение."}
-      }
-    },
-    "tags": {
-      "type": "object",
-      "properties": {
-        "forbidden": {"$ref": "#/$defs/strings"},
-        "required": {"$ref": "#/$defs/strings"}
-      }
-    },
-    "cliches": {"description": "Фразы-клише, ищутся без учёта регистра.", "$ref": "#/$defs/strings"},
-    "forbid": {
-      "description": "Предметные запреты. Добавляются к запретам пайплайна, не заменяют их.",
-      "type": ["array", "null"],
+  "then": {
+    "$ref": "#/$defs/meta"
+  },
+  "else": {
+    "$ref": "#/$defs/article"
+  },
+  "$defs": {
+    "strings": {
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "regex": {"type": "string", "description": "Python re, без учёта регистра."},
-          "judge": {"type": "string", "description": "Та же мысль словами - для судьи; textcheck её не применяет."}
+        "type": "string"
+      }
+    },
+    "count": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "extends": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Базовый профиль: имя (base -> base.quality.yml рядом) или путь от папки профиля. Дочерний переопределяет ключи, forbid и fixes объединяются."
+    },
+    "article": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "article",
+          "description": "Профиль статьи (по умолчанию)."
         },
-        "anyOf": [
-          {"required": ["regex"], "properties": {"regex": {"minLength": 1}}},
-          {"required": ["judge"], "properties": {"judge": {"minLength": 1}}}
-        ]
-      }
+        "extends": {
+          "$ref": "#/$defs/extends"
+        },
+        "length": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min_chars": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "max_chars": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Допуск к границам, доля (0.1 = 10%)."
+            },
+            "gate": {
+              "type": "boolean",
+              "description": "false - нехватка длины к сведению, не валит текст. Превышение максимума не валит никогда."
+            }
+          },
+          "description": "Длина чистого текста без разметки, в символах."
+        },
+        "headings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "h2_min": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "h2_max": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "forbid_colon": {
+              "type": "boolean",
+              "description": "Двоеточие в любом заголовке h2-h6 - нарушение."
+            },
+            "required": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "description": "Обязательные разделы <h2>: строка - заголовок целиком (без учёта регистра, ё/е, пробелов и .:!? в конце) или {name, regex} - regex по тексту h2 без учёта регистра. Нет раздела - находка headings, гейт.",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "regex": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "regex"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "forbidden": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "cliches": {
+          "description": "Фразы-клише, ищутся без учёта регистра.",
+          "$ref": "#/$defs/strings"
+        },
+        "forbid": {
+          "description": "Предметные запреты. Добавляются к запретам пайплайна; при extends - к базовым.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "regex": {
+                "type": "string",
+                "description": "Python re, без учёта регистра."
+              },
+              "judge": {
+                "type": "string",
+                "description": "Та же мысль словами - для судьи; textcheck её не применяет."
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "regex"
+                ],
+                "properties": {
+                  "regex": {
+                    "minLength": 1
+                  }
+                }
+              },
+              {
+                "required": [
+                  "judge"
+                ],
+                "properties": {
+                  "judge": {
+                    "minLength": 1
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "fixes": {
+          "description": "Автозамены textcheck fix, по порядку. При extends - добавляются к базовым (базовые первыми).",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Что заменить: строка или (regex: true) Python re, с учётом регистра."
+              },
+              "to": {
+                "type": "string",
+                "description": "На что; при regex: true - шаблон re.sub (\\1, \\g<name>)."
+              },
+              "regex": {
+                "type": "boolean",
+                "default": false
+              },
+              "where": {
+                "enum": [
+                  "text",
+                  "headings",
+                  "paragraphs",
+                  "lists"
+                ],
+                "default": "text",
+                "description": "text - весь текст, кроме кода; headings - h1-h6 (md: #); paragraphs - <p> (md: абзацы); lists - <li> (md: пункты списков)."
+              },
+              "fixes_rule": {
+                "type": "string",
+                "pattern": "^(format|tags|markup|length|headings|cliche|forbid|language|corruption|placeholder|self_reference|truncation|humanizer)(:\\s*\\S.*)?$",
+                "description": "Какое правило check этим исправляется: id из `textcheck rules`, при желании с текстом из сообщения находки: \"humanizer: 23 длинное тире\"."
+              }
+            },
+            "required": [
+              "name",
+              "from",
+              "to"
+            ]
+          }
+        },
+        "humanizer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "error_is_gate": {
+              "type": "boolean"
+            },
+            "max_warnings": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "mute": {
+              "description": "Подстроки названий правил линтера, которые не считаются.",
+              "$ref": "#/$defs/strings"
+            }
+          }
+        },
+        "language": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "script": {
+              "type": "string",
+              "description": "cyrillic - иначе считается латиница."
+            },
+            "min_share": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "grounding": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "report_only": {
+              "type": "boolean"
+            },
+            "min_grounded_share": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "description": "Для LLM-проверки в antagor; textcheck не применяет."
+        },
+        "judge_model": {
+          "description": "Для LLM-судьи в antagor; textcheck не применяет.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "constraints": {
+              "type": "string"
+            }
+          },
+          "description": "Блок ограничений для промта генерации; textcheck не применяет."
+        }
+      },
+      "description": "Профиль статьи (kind: article)."
     },
-    "humanizer": {
+    "meta": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "enabled": {"type": "boolean"},
-        "error_is_gate": {"type": "boolean"},
-        "max_warnings": {"$ref": "#/$defs/count"},
-        "mute": {"description": "Подстроки названий правил линтера, которые не считаются.", "$ref": "#/$defs/strings"}
-      }
-    },
-    "language": {
-      "type": "object",
-      "properties": {
-        "enabled": {"type": "boolean"},
-        "script": {"type": "string", "description": "cyrillic - иначе считается латиница."},
-        "min_share": {"type": "number", "minimum": 0, "maximum": 1}
-      }
-    },
-    "grounding": {
-      "description": "Для LLM-проверки в antagor; textcheck не применяет.",
-      "type": "object",
-      "properties": {
-        "report_only": {"type": "boolean"},
-        "min_grounded_share": {"type": ["number", "null"]}
-      }
-    },
-    "judge_model": {"description": "Для LLM-судьи в antagor; textcheck не применяет.", "type": ["string", "null"]},
-    "generation": {
-      "description": "Блок ограничений для промта генерации; textcheck не применяет.",
-      "type": "object",
-      "properties": {"constraints": {"type": "string"}}
+        "kind": {
+          "const": "meta"
+        },
+        "extends": {
+          "$ref": "#/$defs/extends"
+        },
+        "length": {
+          "type": "object",
+          "description": "Длина поля: поле -> [min, max] символов.",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "cliches": {
+          "$ref": "#/$defs/strings"
+        },
+        "commercial_words": {
+          "$ref": "#/$defs/strings"
+        },
+        "template_tails": {
+          "$ref": "#/$defs/strings"
+        },
+        "heading_fields": {
+          "$ref": "#/$defs/strings"
+        },
+        "field_rules": {
+          "type": "object",
+          "description": "Поле -> правила для промта генерации.",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Профиль метатегов (kind: meta, antagor seo-meta): textcheck его валидирует, check/fix с ним не работают.",
+      "required": [
+        "kind"
+      ]
     }
   }
 }

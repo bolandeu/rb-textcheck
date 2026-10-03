@@ -65,7 +65,7 @@ RULES: list[dict[str, Any]] = [
     {
         "id": "headings",
         "formats": ["html", "md"],
-        "description": "Число разделов h2, двоеточие и штампы в заголовках h2-h6 (заголовки)",
+        "description": "Число разделов h2, обязательные разделы h2, двоеточие и штампы в заголовках h2-h6 (заголовки)",
     },
     {"id": "cliche", "formats": ["html", "md"], "description": "Клише из профиля, cliches (клише)"},
     {"id": "forbid", "formats": ["html", "md"], "description": "Regex-запреты профиля и пайплайна, forbid (запрет)"},
@@ -352,6 +352,29 @@ def heading_stamp(text: str) -> str | None:
     return next((s for s in HEADING_STAMPS if s.replace("ё", "е") in normalized), None)
 
 
+def _heading_key(text: str) -> str:
+    """Заголовок для сравнения: без регистра, ё/е, лишних пробелов и знака в конце."""
+    return re.sub(r"\s+", " ", text.lower().replace("ё", "е")).strip().rstrip(".:!?…").strip()
+
+
+def missing_sections(h2: list[str], required: list[Any]) -> list[str]:
+    """
+    Обязательные разделы (headings.required), которых нет среди <h2>.
+
+    Строка - заголовок целиком (без регистра, ё/е, пробелов и .:!? в конце),
+    {name, regex} - паттерн по тексту h2 без учёта регистра.
+    """
+    keys = {_heading_key(h) for h in h2}
+    missing = []
+    for item in required:
+        if isinstance(item, dict):
+            if not any(re.search(item["regex"], h, re.IGNORECASE) for h in h2):
+                missing.append(str(item["name"]))
+        elif _heading_key(str(item)) not in keys:
+            missing.append(str(item))
+    return missing
+
+
 def check_headings(raw: str, profile: QualityProfile) -> list[Issue]:
     """Число разделов и качество самих заголовков."""
     issues: list[Issue] = []
@@ -363,6 +386,8 @@ def check_headings(raw: str, profile: QualityProfile) -> list[Issue]:
         issues.append(Issue("headings", f"Разделов <h2>: {len(h2)}, минимум {h2_min}"))
     if h2_max and len(h2) > h2_max:
         issues.append(Issue("headings", f"Разделов <h2>: {len(h2)}, максимум {h2_max}"))
+    for name in missing_sections(h2, rules.get("required") or []):
+        issues.append(Issue("headings", f"Нет обязательного раздела <h2> «{name}»"))
 
     # Все заголовки статьи, не только разделы: правило про «тема: пояснение»
     # и штампы касается любого заголовка (решение пользователя 2026-09-30)
@@ -728,5 +753,5 @@ def check(
     """
     if format not in FORMATS:
         raise ValueError(f"формат {format!r} не поддерживается: {', '.join(FORMATS)}")
-    issues, humanizer = run_all(text, load_profile(profile), format)
+    issues, humanizer = run_all(text, load_profile(profile).require_article(), format)
     return Result(issues=issues, humanizer=humanizer)

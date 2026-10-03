@@ -1,0 +1,1 @@
+Breaking: the built-in forbid rule «ставка НДС 20%» is no longer in the code — put it into the profile (example: vectors/profiles/vat-22.quality.yml); without it a profile no longer flags a 20% VAT rate.
