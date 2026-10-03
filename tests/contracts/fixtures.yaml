@@ -6,6 +6,13 @@
 #   recorded responses, a filled cache, fake keys — for every case unless it says
 #   `offline_cache: false`; those get `no_cache` (if set) and must fail before
 #   reaching the provider.
-placeholders: {}
-offline_cache: null
+#
+# textcheck has no provider and no cache: its offline data are the texts and the
+# profile in tests/contracts/data/; `contract_data` makes that the working directory,
+# so the placeholders are plain file names.
+placeholders:
+  fixture_clean_article: clean-article.html            # passes the gate on the built-in defaults
+  fixture_article_without_h2: article-without-h2.html  # no <h2> at all
+  fixture_profile_requires_h2: profile-requires-h2.quality.yml  # headings.h2_min: 2
+offline_cache: contract_data
 no_cache: null

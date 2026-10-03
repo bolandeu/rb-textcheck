@@ -1,0 +1,3 @@
+# Контракт windmill, hard_issue_is_gate: статья без h2 при h2_min: 2 -> находка с гейтом, exit 1.
+headings:
+  h2_min: 2
