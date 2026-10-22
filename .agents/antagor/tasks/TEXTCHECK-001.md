@@ -2,7 +2,7 @@
 id: TEXTCHECK-001
 title: 'Template v1.27.1: README install lines, test fixture, refreshed help/describe
   snapshots, lock'
-status: in_progress
+status: in_review
 attempts: 0
 blocked: false
 blocked_reason: null
