@@ -64,7 +64,13 @@ is the git tag; a release goes through Antagor (`antagor publish`), which writes
 ## Install
 
 ```bash
-uv tool install --index gitea=https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple rb-textcheck
+uv tool install rb-textcheck --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
+```
+
+From the git tag instead:
+
+```bash
+uv tool install "rb-textcheck @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/textcheck.git@vX.Y.Z"
 ```
 
 An AI agent bootstraps the CLI the same way on a fresh machine — see `src/rb_textcheck/data/SKILL.md`.

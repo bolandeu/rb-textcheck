@@ -7,6 +7,7 @@
 │ --help          Show this message and exit.                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
-│ install  Copy this CLI's bundled SKILL.md into an AI tool's skill directory.                     │
+│ install  Copy this CLI's bundled skills into an AI tool's skill directory.                       │
+│ list     List the agent skills this CLI bundles: name and description.                           │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 

@@ -1,13 +1,16 @@
 
  Usage: textcheck skill install [OPTIONS]
 
- Copy this CLI's bundled SKILL.md into an AI tool's skill directory.
+ Copy this CLI's bundled skills into an AI tool's skill directory.
+
+ The conventions skill and every extra skill the package ships, each into its own directory.
 
  Example: textcheck skill install --tool claude-code
 
 ╭─ Options ────────────────────────────────────────────────────────────────────────────────────────╮
 │ --tool           <str>  Target AI tool: one of claude-code, agents. [default: claude-code]       │
 │ --project               Install into the current project instead of the user-level directory.    │
+│ --skill          <str>  Install only this bundled skill (see `skill list`); by default all.      │
 │ --json                  Emit machine-readable JSON output.                                       │
 │ --quiet                 Suppress non-essential output.                                           │
 │ --help                  Show this message and exit.                                              │

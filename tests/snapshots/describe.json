@@ -9,22 +9,6 @@
     "name": "textcheck",
     "options": [
       {
-        "name": "--project",
-        "arguments": [
-          {
-            "name": "PROJECT",
-            "required": true
-          }
-        ],
-        "description": "Path to the project root.",
-        "metadata": [
-          {
-            "name": "x-rb-type",
-            "value": "str"
-          }
-        ]
-      },
-      {
         "name": "--json",
         "description": "Emit machine-readable JSON output.",
         "metadata": [
@@ -109,6 +93,25 @@
         ]
       },
       {
+        "name": "--project",
+        "arguments": [
+          {
+            "name": "TEXT",
+            "required": true,
+            "arity": {
+              "maximum": 1
+            }
+          }
+        ],
+        "description": "Path to the project root.",
+        "metadata": [
+          {
+            "name": "x-rb-type",
+            "value": "str"
+          }
+        ]
+      },
+      {
         "name": "--ai",
         "description": "Print AI-oriented usage documentation (the bundled skill doc) and exit.",
         "metadata": [
@@ -145,15 +148,278 @@
     ],
     "commands": [
       {
+        "name": "doctor",
+        "description": "Run diagnostic checks and report readiness.\n\nAlways exits 0 — the report itself is the result; `healthy` says\nwhether every check passed.\n\nExample: textcheck doctor --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--verbose",
+            "description": "Emit extra diagnostic output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "check",
+        "description": "Check a text against a quality profile: findings, humanizer verdict, gate.\n\nDeterministic, no network and no LLM. Every finding has rule, message,\nexcerpt, gate, unit, address and action; `textcheck rules` lists the rules.\nExit 0: the gate passed (findings with gate=false are for information).\nExit 1: findings with gate=true — the report is still emitted (ok=false,\nerror QUALITY_GATE_FAILED). Exit 2: bad arguments or profile.\n\nExample: textcheck check article.html --profile content-logistics.quality.yml --json",
+        "options": [
+          {
+            "name": "--profile",
+            "arguments": [
+              {
+                "name": "PROFILE",
+                "required": true,
+                "arity": {
+                  "maximum": 1
+                }
+              }
+            ],
+            "description": "Quality profile (quality.yml). Without it: built-in defaults only.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "path"
+              }
+            ]
+          },
+          {
+            "name": "--format",
+            "arguments": [
+              {
+                "name": "TEXT_FORMAT",
+                "required": true,
+                "arity": {
+                  "maximum": 1
+                }
+              }
+            ],
+            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          },
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ],
+        "arguments": [
+          {
+            "name": "source",
+            "required": true,
+            "arity": {
+              "minimum": 1,
+              "maximum": 1
+            },
+            "description": "Text file to check, or '-' for stdin.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "fix",
+        "description": "Apply the profile's mechanical replacements (fixes) and print the fixed text.\n\nDeterministic, no LLM: what to replace with what is in the profile, in\nits order. Only the text a reader sees changes — HTML text nodes (tags,\nattributes and block order stay byte for byte), md outside code; code,\npre, script, style, md code, link targets and bare URLs are never touched.\nDefault output: the fixed text on stdout, a summary on stderr. --json:\n{ok, text, applied[{name, count, addresses}], unchanged}; with --check\nalso check's {issues, humanizer, gate_failed} and its exit code.\nExit 2: bad arguments or profile (INVALID_PROFILE) — no text is printed.\n\nExample: textcheck fix article.html --profile typography.quality.yml --check --json",
+        "options": [
+          {
+            "name": "--profile",
+            "arguments": [
+              {
+                "name": "PROFILE",
+                "required": true,
+                "arity": {
+                  "maximum": 1
+                }
+              }
+            ],
+            "description": "Quality profile (quality.yml) with a `fixes` section. Without fixes: text unchanged.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "path"
+              }
+            ]
+          },
+          {
+            "name": "--format",
+            "arguments": [
+              {
+                "name": "TEXT_FORMAT",
+                "required": true,
+                "arity": {
+                  "maximum": 1
+                }
+              }
+            ],
+            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          },
+          {
+            "name": "--check",
+            "description": "Run check on the fixed text and exit with its code (0 gate passed, 1 failed).",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "--quiet",
+            "description": "Suppress non-essential output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ],
+        "arguments": [
+          {
+            "name": "source",
+            "required": true,
+            "arity": {
+              "minimum": 1,
+              "maximum": 1
+            },
+            "description": "Text file to fix, or '-' for stdin.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "str"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "rules",
+        "description": "List the check rules: id (the `rule` of a finding), formats, description.\n\nExample: textcheck rules --json",
+        "options": [
+          {
+            "name": "--json",
+            "description": "Emit machine-readable JSON output.",
+            "metadata": [
+              {
+                "name": "x-rb-type",
+                "value": "boolean"
+              },
+              {
+                "name": "x-rb-default",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "init",
-        "description": "Initialize a project: creates .textcheck/config.toml in the target directory.\n\nExample: textcheck init --name demo",
+        "description": "Initialize a project: creates .rb_textcheck/config.toml in the target directory.\n\nExample: textcheck init --name demo",
         "options": [
           {
             "name": "--name",
             "arguments": [
               {
                 "name": "NAME",
-                "required": true
+                "required": true,
+                "arity": {
+                  "maximum": 1
+                }
               }
             ],
             "description": "Project name (defaults to directory name).",
@@ -271,254 +537,6 @@
         ]
       },
       {
-        "name": "doctor",
-        "description": "Run diagnostic checks and report readiness.\n\nAlways exits 0 — the report itself is the result; `healthy` says\nwhether every check passed.\n\nExample: textcheck doctor --json",
-        "options": [
-          {
-            "name": "--json",
-            "description": "Emit machine-readable JSON output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          },
-          {
-            "name": "--quiet",
-            "description": "Suppress non-essential output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          },
-          {
-            "name": "--verbose",
-            "description": "Emit extra diagnostic output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "check",
-        "description": "Check a text against a quality profile: findings, humanizer verdict, gate.\n\nDeterministic, no network and no LLM. Every finding has rule, message,\nexcerpt, gate, unit, address and action; `textcheck rules` lists the rules.\nExit 0: the gate passed (findings with gate=false are for information).\nExit 1: findings with gate=true — the report is still emitted (ok=false,\nerror QUALITY_GATE_FAILED). Exit 2: bad arguments or profile.\n\nExample: textcheck check article.html --profile content-logistics.quality.yml --json",
-        "options": [
-          {
-            "name": "--profile",
-            "arguments": [
-              {
-                "name": "PROFILE",
-                "required": true
-              }
-            ],
-            "description": "Quality profile (quality.yml). Without it: built-in defaults only.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "path"
-              }
-            ]
-          },
-          {
-            "name": "--format",
-            "arguments": [
-              {
-                "name": "TEXT_FORMAT",
-                "required": true
-              }
-            ],
-            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "str"
-              }
-            ]
-          },
-          {
-            "name": "--json",
-            "description": "Emit machine-readable JSON output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          },
-          {
-            "name": "--quiet",
-            "description": "Suppress non-essential output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          }
-        ],
-        "arguments": [
-          {
-            "name": "source",
-            "required": true,
-            "arity": {
-              "minimum": 1,
-              "maximum": 1
-            },
-            "description": "Text file to check, or '-' for stdin.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "str"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "fix",
-        "description": "Apply the profile's mechanical replacements (fixes) and print the fixed text.\n\nDeterministic, no LLM: what to replace with what is in the profile, in\nits order. Only the text a reader sees changes — HTML text nodes (tags,\nattributes and block order stay byte for byte), md outside code; code,\npre, script, style, md code, link targets and bare URLs are never touched.\nDefault output: the fixed text on stdout, a summary on stderr. --json:\n{ok, text, applied[{name, count, addresses}], unchanged}; with --check\nalso check's {issues, humanizer, gate_failed} and its exit code.\nExit 2: bad arguments or profile (INVALID_PROFILE) — no text is printed.\n\nExample: textcheck fix article.html --profile typography.quality.yml --check --json",
-        "options": [
-          {
-            "name": "--profile",
-            "arguments": [
-              {
-                "name": "PROFILE",
-                "required": true
-              }
-            ],
-            "description": "Quality profile (quality.yml) with a `fixes` section. Without fixes: text unchanged.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "path"
-              }
-            ]
-          },
-          {
-            "name": "--format",
-            "arguments": [
-              {
-                "name": "TEXT_FORMAT",
-                "required": true
-              }
-            ],
-            "description": "html or md. Default: md for .md/.markdown files, html otherwise (and for stdin).",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "str"
-              }
-            ]
-          },
-          {
-            "name": "--check",
-            "description": "Run check on the fixed text and exit with its code (0 gate passed, 1 failed).",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          },
-          {
-            "name": "--json",
-            "description": "Emit machine-readable JSON output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          },
-          {
-            "name": "--quiet",
-            "description": "Suppress non-essential output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          }
-        ],
-        "arguments": [
-          {
-            "name": "source",
-            "required": true,
-            "arity": {
-              "minimum": 1,
-              "maximum": 1
-            },
-            "description": "Text file to fix, or '-' for stdin.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "str"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "rules",
-        "description": "List the check rules: id (the `rule` of a finding), formats, description.\n\nExample: textcheck rules --json",
-        "options": [
-          {
-            "name": "--json",
-            "description": "Emit machine-readable JSON output.",
-            "metadata": [
-              {
-                "name": "x-rb-type",
-                "value": "boolean"
-              },
-              {
-                "name": "x-rb-default",
-                "value": false
-              }
-            ]
-          }
-        ]
-      },
-      {
         "name": "describe",
         "description": "Print this CLI's machine-readable contract: an OpenCLI document (opencli.org).\n\nCommands, options, arguments, exit codes, plus `x-rb-*` metadata: env vars,\ntables, v1 views, data files, external programs. With --json it is the bare\ndocument on one line (no {\"ok\": ...} envelope); without, the same indented.\n\nExample: textcheck describe --json",
         "options": [
@@ -561,6 +579,136 @@
               {
                 "name": "x-rb-default",
                 "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "auth",
+        "description": "Credentials: report their health (and store them, if this CLI has any).",
+        "commands": [
+          {
+            "name": "status",
+            "description": "Report every provider's credential: where it comes from and whether it works. Never prints values.\n\nWithout --check only presence is reported (status `unchecked` or `missing`).\nExits 0 when every required provider is ok/unchecked (an optional one may be\nmissing), 3 when any required provider has a problem or any credential is\ninvalid/expired, 2 on a usage error. A per-target provider (one credential per\nsite/host/account) gets one entry per stored target, named `<kind>:<target>`. The --json shape is a cross-tool contract:\n`tool`, `version`, `checked_at`, `credentials[]` with `provider`, `required`,\n`fields`, `source`, `source_ref`, `status`, `expires_at`, `quota`, `message`.\n\nExample: textcheck auth status --check --json",
+            "options": [
+              {
+                "name": "--check",
+                "description": "Also make one cheap read-only call per provider (10 s timeout) to prove each works.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--provider",
+                "arguments": [
+                  {
+                    "name": "PROVIDER",
+                    "required": true,
+                    "arity": {
+                      "maximum": 1
+                    }
+                  }
+                ],
+                "description": "Report only this provider, or one target as <kind>:<target> (default: all).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              },
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "profile",
+        "description": "Quality profiles (quality.yml).",
+        "commands": [
+          {
+            "name": "validate",
+            "description": "Validate a quality profile against the bundled JSON Schema and compile its regexes.\n\nFollows `extends` (each base is validated too; a cycle is an error). Any\nunknown key, at any level, is an error. Both kinds validate: article\n(check/fix) and meta (antagor seo-meta). Exit 0: valid — prints kind and\nfingerprint (first 8 hex of sha1 of the profile and its bases). Exit 2:\nINVALID_PROFILE with the path to the key and what is wrong.\n\nExample: textcheck profile validate content-logistics.quality.yml --json",
+            "options": [
+              {
+                "name": "--json",
+                "description": "Emit machine-readable JSON output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              },
+              {
+                "name": "--quiet",
+                "description": "Suppress non-essential output.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "boolean"
+                  },
+                  {
+                    "name": "x-rb-default",
+                    "value": false
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "path",
+                "required": true,
+                "arity": {
+                  "minimum": 1,
+                  "maximum": 1
+                },
+                "description": "Quality profile file (quality.yml).",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "path"
+                  }
+                ]
               }
             ]
           }
@@ -724,89 +872,22 @@
         ]
       },
       {
-        "name": "auth",
-        "description": "Credentials: report their health (and store them, if this CLI has any).",
-        "commands": [
-          {
-            "name": "status",
-            "description": "Report every provider's credential: where it comes from and whether it works. Never prints values.\n\nWithout --check only presence is reported (status `unchecked` or `missing`).\nExits 0 when every required provider is ok/unchecked (an optional one may be\nmissing), 3 when any required provider has a problem or any credential is\ninvalid/expired, 2 on a usage error. A per-target provider (one credential per\nsite/host/account) gets one entry per stored target, named `<kind>:<target>`. The --json shape is a cross-tool contract:\n`tool`, `version`, `checked_at`, `credentials[]` with `provider`, `required`,\n`fields`, `source`, `source_ref`, `status`, `expires_at`, `quota`, `message`.\n\nExample: textcheck auth status --check --json",
-            "options": [
-              {
-                "name": "--check",
-                "description": "Also make one cheap read-only call per provider (10 s timeout) to prove each works.",
-                "metadata": [
-                  {
-                    "name": "x-rb-type",
-                    "value": "boolean"
-                  },
-                  {
-                    "name": "x-rb-default",
-                    "value": false
-                  }
-                ]
-              },
-              {
-                "name": "--provider",
-                "arguments": [
-                  {
-                    "name": "PROVIDER",
-                    "required": true
-                  }
-                ],
-                "description": "Report only this provider, or one target as <kind>:<target> (default: all).",
-                "metadata": [
-                  {
-                    "name": "x-rb-type",
-                    "value": "str"
-                  }
-                ]
-              },
-              {
-                "name": "--json",
-                "description": "Emit machine-readable JSON output.",
-                "metadata": [
-                  {
-                    "name": "x-rb-type",
-                    "value": "boolean"
-                  },
-                  {
-                    "name": "x-rb-default",
-                    "value": false
-                  }
-                ]
-              },
-              {
-                "name": "--quiet",
-                "description": "Suppress non-essential output.",
-                "metadata": [
-                  {
-                    "name": "x-rb-type",
-                    "value": "boolean"
-                  },
-                  {
-                    "name": "x-rb-default",
-                    "value": false
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
         "name": "skill",
         "description": "Install this CLI's agent skill for AI tools.",
         "commands": [
           {
             "name": "install",
-            "description": "Copy this CLI's bundled SKILL.md into an AI tool's skill directory.\n\nExample: textcheck skill install --tool claude-code",
+            "description": "Copy this CLI's bundled skills into an AI tool's skill directory.\n\nThe conventions skill and every extra skill the package ships, each into its own directory.\n\nExample: textcheck skill install --tool claude-code",
             "options": [
               {
                 "name": "--tool",
                 "arguments": [
                   {
                     "name": "TOOL",
-                    "required": true
+                    "required": true,
+                    "arity": {
+                      "maximum": 1
+                    }
                   }
                 ],
                 "description": "Target AI tool: one of claude-code, agents.",
@@ -836,6 +917,25 @@
                 ]
               },
               {
+                "name": "--skill",
+                "arguments": [
+                  {
+                    "name": "SKILL",
+                    "required": true,
+                    "arity": {
+                      "maximum": 1
+                    }
+                  }
+                ],
+                "description": "Install only this bundled skill (see `skill list`); by default all.",
+                "metadata": [
+                  {
+                    "name": "x-rb-type",
+                    "value": "str"
+                  }
+                ]
+              },
+              {
                 "name": "--json",
                 "description": "Emit machine-readable JSON output.",
                 "metadata": [
@@ -864,16 +964,10 @@
                 ]
               }
             ]
-          }
-        ]
-      },
-      {
-        "name": "profile",
-        "description": "Quality profiles (quality.yml).",
-        "commands": [
+          },
           {
-            "name": "validate",
-            "description": "Validate a quality profile against the bundled JSON Schema and compile its regexes.\n\nFollows `extends` (each base is validated too; a cycle is an error). Any\nunknown key, at any level, is an error. Both kinds validate: article\n(check/fix) and meta (antagor seo-meta). Exit 0: valid — prints kind and\nfingerprint (first 8 hex of sha1 of the profile and its bases). Exit 2:\nINVALID_PROFILE with the path to the key and what is wrong.\n\nExample: textcheck profile validate content-logistics.quality.yml --json",
+            "name": "list",
+            "description": "List the agent skills this CLI bundles: name and description.\n\nExample: textcheck skill list",
             "options": [
               {
                 "name": "--json",
@@ -900,23 +994,6 @@
                   {
                     "name": "x-rb-default",
                     "value": false
-                  }
-                ]
-              }
-            ],
-            "arguments": [
-              {
-                "name": "path",
-                "required": true,
-                "arity": {
-                  "minimum": 1,
-                  "maximum": 1
-                },
-                "description": "Quality profile file (quality.yml).",
-                "metadata": [
-                  {
-                    "name": "x-rb-type",
-                    "value": "path"
                   }
                 ]
               }
@@ -984,6 +1061,15 @@
       {
         "name": "x-rb-external",
         "value": []
+      },
+      {
+        "name": "x-rb-skills",
+        "value": [
+          {
+            "name": "textcheck",
+            "description": "Conventions for driving the textcheck CLI from an agent — install, JSON output, exit codes, credentials, destructive-command gating. Invoke when a task involves this project's operations."
+          }
+        ]
       }
     ]
   }
