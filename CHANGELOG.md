@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Versions follow
 [SemVer](https://semver.org/) (while at `0.x`, a minor bump may break).
 
+## v0.3.0 — 2026-10-22
+
+### Outside epics
+
+- Template v1.27.1: README install lines, test fixture, refreshed help/describe snapshots, lock (TEXTCHECK-001)
+
 ## [0.2.0] - 2026-10-03
 
 ### Added
