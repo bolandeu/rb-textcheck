@@ -1,36 +1,39 @@
-from __future__ import annotations
+"""The root Typer app: global options, the command groups and the optional commands a generated package has, wired
+together, and the console-script entry point.
+"""
 
-from importlib import resources
+from __future__ import annotations
 
 import typer
 
 from . import output
-from .commands import auth, check, describe, doctor, fix, init, profile, rules, skill, status
-from .commands import config as config_cmd
-from .core.version import DEV_VERSION, cli_name, installed_version, package_summary
+from .commands import auth, check, doctor, fix, profile, rules
+from .core.version import DEV_VERSION, cli_name, installed_version, optional_module, package_summary
 
 _PACKAGE_NAME = __name__.split(".")[0]
+# Optional parts (copier questions, dropped by _exclude): each one ships a module that registers its
+# commands and global options. Probed at runtime, so this file needs no template logic.
+PARTS = ("project", "skill", "describe", "db")
 
 # A bare `<cli>` is the discovery entry point for humans and agents alike:
 # name + version + description, then every command with the first line of
 # its docstring. No `no_args_is_help` (that exits 2) — main_options() below
 # prints this and exits 0. Shell completion stays enabled.
 app = typer.Typer(
-    help=f"{cli_name()} {installed_version() or DEV_VERSION} — {package_summary() or 'project-aware automation CLI'}"
+    cls=output.RootGroup,  # a usage error under --json is the error envelope
+    help=f"{cli_name()} {installed_version() or DEV_VERSION} — {package_summary() or 'project-aware automation CLI'}",
 )
 
-app.add_typer(config_cmd.app, name="config")
 app.add_typer(auth.app, name="auth")  # `auth status` in every CLI; login/logout only with credentials
-app.add_typer(skill.app, name="skill")
 app.add_typer(profile.app, name="profile")
 
-app.command(name="init")(init.init)
-app.command(name="status")(status.status)
 app.command(name="doctor")(doctor.doctor)
 app.command(name="check")(check.check)
 app.command(name="fix")(fix.fix)
 app.command(name="rules")(rules.rules)
-app.command(name="describe")(describe.describe)
+for part in PARTS:
+    if module := optional_module(f"{_PACKAGE_NAME}.commands.{part}"):
+        module.register(app)
 
 
 def _version_callback(value: bool) -> None:
@@ -40,24 +43,9 @@ def _version_callback(value: bool) -> None:
     raise typer.Exit()
 
 
-def _ai_callback(value: bool) -> None:
-    """Print the bundled agent skill doc to stdout.
-
-    For agents that can execute this CLI but cannot read files from disk
-    (e.g. a sandboxed shell with no access to a SKILL.md on the filesystem),
-    this is the fallback way to get full usage guidance.
-    """
-    if not value:
-        return
-    content = resources.files(f"{_PACKAGE_NAME}.data").joinpath("SKILL.md").read_text()
-    typer.echo(content)
-    raise typer.Exit()
-
-
 @app.callback(invoke_without_command=True)
 def main_options(
     ctx: typer.Context,
-    project: str = typer.Option(None, "--project", help="Path to the project root."),
     json_output: bool = typer.Option(False, "--json", help="Emit machine-readable JSON output."),
     quiet: bool = typer.Option(False, "--quiet", help="Suppress non-essential output."),
     verbose: bool = typer.Option(False, "--verbose", help="Emit extra diagnostic output."),
@@ -66,16 +54,8 @@ def main_options(
     version: bool = typer.Option(
         False, "--version", callback=_version_callback, is_eager=True, help="Show the version and exit."
     ),
-    ai: bool = typer.Option(
-        False,
-        "--ai",
-        callback=_ai_callback,
-        is_eager=True,
-        help="Print AI-oriented usage documentation (the bundled skill doc) and exit.",
-    ),
 ) -> None:
-    ctx.ensure_object(dict)
-    ctx.obj["project"] = project
+    ctx.ensure_object(dict)  # a part's global option (--project) may have put its value here already
     ctx.obj["json"] = json_output
     ctx.obj["quiet"] = quiet
     ctx.obj["verbose"] = verbose

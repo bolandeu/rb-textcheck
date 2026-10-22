@@ -1,9 +1,9 @@
-# The tools catalog (~/Work/tools/docs/catalog.json) is built by the root agent from
+# The tools catalog is built from
 # every installed tool's `describe --json`. This is what it relies on.
 contract: 1
 consumer: tools-catalog
 provider: textcheck
-contact: "tools (root agent)"
+contact: "cli-generator"
 static:
   commands:
     - path: [describe]

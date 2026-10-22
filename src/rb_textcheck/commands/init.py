@@ -1,3 +1,5 @@
+"""The `init` command: create the project folder with its config file in the target directory."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -17,7 +19,7 @@ def init(
     quiet: bool = output.QuietOption,
     verbose: bool = output.VerboseOption,
 ) -> None:
-    """Initialize a project: creates .{cli}/config.toml in the target directory.
+    """Initialize a project: creates .{package}/config.toml in the target directory.
 
     Example: {cli} init --name demo
     """

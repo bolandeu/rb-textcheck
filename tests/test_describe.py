@@ -6,7 +6,7 @@
   it lists shows up in that command's --help;
 - snapshot: tests/snapshots/describe.json (syrupy). A changed contract fails until
   the snapshot is refreshed with `uv run pytest --snapshot-update`, which puts the
-  change in the diff — review it like any other breaking change (conventions.md).
+  change in the diff — review it like any other breaking change.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from __future__ import annotations
 import enum
 import json
 import re
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import jsonschema
@@ -119,6 +119,10 @@ class DescribeSnapshot(SingleFileSnapshotExtension):
         return "describe"
 
 
+def test_describe_is_the_same_in_ci(same_in_ci: Callable[[str], None]) -> None:
+    same_in_ci("test_describe_snapshot")
+
+
 def test_describe_snapshot(snapshot) -> None:
     document = json.loads(json.dumps(DOCUMENT))
     # Versions move with every release and template update — not a contract change.
@@ -165,6 +169,8 @@ def test_parameter_shapes() -> None:
     assert _meta(options["--color"])["x-rb-default"] == "red"
     assert _meta(options["--out"])["x-rb-default"] == "out"
     assert _meta(options["--tag"])["x-rb-multiple"] is True
+    assert options["--color"]["arguments"][0]["arity"] == {"maximum": 1}
+    assert "arity" not in options["--tag"]["arguments"][0]
     assert options["--secret"]["hidden"] is True
     assert options["--force"]["aliases"] == ["--no-force"] and "arguments" not in options["--force"]
     assert options["--name"]["required"] is True

@@ -2,7 +2,7 @@
 
 The contracts are written by the consumers (through dev), not by this tool:
 `tests/contracts/<consumer>/<provider>.yaml`, format `contract: 1`
-(`tests/contracts/schema.json`; cli-generator architecture.md §13). The source of
+(`tests/contracts/schema.json`; the Standard, Consumer contracts). The source of
 truth is the consumer's repo; this repo keeps a copy and runs it in its gate.
 
 - `static` — against `describe --json`: commands (path, arguments, options), root
@@ -17,7 +17,7 @@ truth is the consumer's repo; this repo keeps a copy and runs it in its gate.
 
 `provider_range` limits a contract to those versions of this tool. One test per
 case, id `<consumer>:<section>:<name>`. The gate runs this file as its own step
-(`release.py --check`: "contracts"); a failing case stops the release. Never edit
+(`rb-release check`: "contracts"); a failing case stops the release. Never edit
 a consumer's contract to make it pass — that's the point.
 """
 
@@ -48,7 +48,7 @@ from rb_textcheck.core.version import DEV_VERSION, cli_name, installed_version
 CONTRACTS = Path(__file__).parent / "contracts"
 SCHEMA = json.loads((CONTRACTS / "schema.json").read_text())
 FIXTURES = CONTRACTS / "fixtures.yaml"
-# The version the gate is building (release.py sets it), else the installed one.
+# The version the gate is building, when set, else the installed one.
 VERSION_ENV = "RB_PROVIDER_VERSION"
 PG_URL = os.environ.get("TEST_DATABASE_URL")
 LOCAL_HOSTS = ("localhost", "127.0.0.1", "::1")

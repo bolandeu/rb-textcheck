@@ -55,66 +55,19 @@ MIT: `src/rb_textcheck/data/LICENSE-humanizer-ru.txt`.
 ```bash
 uv sync
 uv run textcheck --help
-uv run scripts/release.py --check   # the full gate (what releases and CI run)
-scripts/install_hooks.sh  # once per clone: git uses the versioned hooks in .githooks/
 uv run pytest --snapshot-update  # after changing a command's help; review tests/snapshots/help/
 ```
 
-`pytest` fails below the coverage floor in `pyproject.toml`; `ruff` includes
-the security (`S`) rules; the gate also scans `uv.lock` for known
-vulnerabilities when `osv-scanner` is installed (`brew install osv-scanner`),
-and says it skipped the scan otherwise. CI is optional and only repeats
-`release.py --check`.
-
-## Release
-
-The version is the git tag (`vX.Y.Z`) — `pyproject.toml` has no `version =`.
-Each change adds a changelog fragment instead of editing `CHANGELOG.md`:
-
-```bash
-uv run towncrier create +<slug>.<type>.md -c "What changed, for a human reader."
-uv run scripts/release.py patch   # or minor / major (SemVer; at 0.x: patch = fix/feature, minor = breaking)
-# then the root tools agent pushes it (git push --follow-tags) after your yes
-```
-
-`release.py` refuses off `main`, on a dirty tree or behind the remote, runs
-the full gate (the same as `--check`; any failing step aborts the release), assembles `CHANGELOG.md` from `changelog.d/`, commits
-`Release vX.Y.Z` and tags it; pushing goes through the root tools agent.
+The gate is the `rb-release check` step of `.gitea/workflows/ci.yml`: run that command before a commit. The version
+is the git tag; a release goes through Antagor (`antagor publish`), which writes `CHANGELOG.md`.
 
 ## Install
 
-**On this machine, from a local checkout:**
-
 ```bash
-uv tool install .
+uv tool install --index gitea=https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple rb-textcheck
 ```
 
-**On any other machine (any OS), once this repo is pushed to GitHub — no
-PyPI publish needed:**
-
-```bash
-uv tool install "rb-textcheck @ git+https://github.com/bolandeu/textcheck.git@vX.Y.Z"
-```
-
-Replace `vX.Y.Z` with the latest release tag (a tag cut by
-`scripts/release.py`; never install a branch). This is also how an AI agent
-bootstraps this CLI on a fresh machine/sandbox where it isn't installed
-yet — see `src/rb_textcheck/data/SKILL.md`.
-
-**Private repo?** The command above is unchanged — `uv` runs git under the
-hood, so it authenticates the same way `git clone` does. On a machine
-where the install is refused with an auth error, do one of these once:
-
-```bash
-gh auth login          # interactive login also sets up git's credential helper
-gh auth setup-git      # only needed if gh was logged in with --with-token / in CI
-```
-
-or use the SSH form instead of HTTPS:
-
-```bash
-uv tool install "rb-textcheck @ git+ssh://git@github.com/bolandeu/textcheck.git@vX.Y.Z"
-```
+An AI agent bootstraps the CLI the same way on a fresh machine — see `src/rb_textcheck/data/SKILL.md`.
 
 **Update** an installed copy to the latest commit:
 
