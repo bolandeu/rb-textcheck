@@ -13,3 +13,19 @@ changelog = "CHANGELOG.md"
 deploy_command = "sh scripts/deploy.sh"
 gate = "remote"
 gate_status_url = "https://homeserver.tailee01ab.ts.net:3000/api/v1/repos/bolandeu/textcheck/commits/{commit}/status"
+
+[connector]
+kind = "plane"
+base_url = "https://homeserver.tailee01ab.ts.net:8443"
+workspace = "products"
+project_id = "170957c6-6aa1-4dfa-a7f0-f1fb530b799e"
+humans = ["r.bolandau@gmail.com"]
+
+[connector.states]
+ideas = "Backlog"
+queue = "Todo"
+in_progress = "In Progress"
+in_review = "In Review"
+publish = "Publishing"
+done = "Done"
+cancelled = "Cancelled"
