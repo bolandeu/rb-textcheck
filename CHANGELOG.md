@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Versions follow
 [SemVer](https://semver.org/) (while at `0.x`, a minor bump may break).
 
+## v0.3.1 — 2026-10-26
+
+### Outside epics
+
+- Deps: setuptools for GHSA-xmj3-9gf7-h52w (TEXTCHECK-002)
+
 ## v0.3.0 — 2026-10-22
 
 ### Outside epics
