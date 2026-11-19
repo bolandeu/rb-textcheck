@@ -64,7 +64,6 @@ is the git tag; a release goes through Antagor (`antagor publish`), which writes
 ## Install
 
 ```bash
-uv tool install rb-textcheck --index https://homeserver.tailee01ab.ts.net:3000/api/packages/bolandeu/pypi/simple
 ```
 
 From the git tag instead:

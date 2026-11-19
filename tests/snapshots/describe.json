@@ -3,7 +3,7 @@
   "info": {
     "title": "textcheck",
     "version": "<version>",
-    "summary": "Deterministic text quality checks by a quality profile (no network, no LLM)"
+    "summary": "Deterministic text quality checks by a quality profile, with no network and no LLM."
   },
   "command": {
     "name": "textcheck",
