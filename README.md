@@ -58,7 +58,7 @@ uv run textcheck --help
 uv run pytest --snapshot-update  # after changing a command's help; review tests/snapshots/help/
 ```
 
-The gate is the `rb-release check` step of `.gitea/workflows/ci.yml`: run that command before a commit. The version
+The gate is `gate check`, run on this machine before a commit (`.agents/antagor/antagor.toml`).
 is the git tag; a release goes through Antagor (`antagor publish`), which writes `CHANGELOG.md`.
 
 ## Install
