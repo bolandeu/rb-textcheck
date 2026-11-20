@@ -10,6 +10,7 @@ from pathlib import Path
 import tomli_w
 from packaging.version import Version
 
+from .._distribution import TOOL
 from .errors import CliTooOld, InvalidArguments, InvalidProfile, ProjectNotInitialized, QualityGateFailed
 from .models import ProjectConfig
 from .version import installed_version
@@ -18,7 +19,6 @@ from .version import installed_version
 # needs template substitution: it just works under whatever package_name
 # the project was generated with.
 _PACKAGE_NAME = __name__.split(".")[0]
-from .._distribution import TOOL
 
 PROJECT_DIR_NAME = f".{TOOL}"
 CONFIG_FILE_NAME = "config.toml"
