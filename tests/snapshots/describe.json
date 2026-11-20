@@ -445,7 +445,7 @@
       },
       {
         "name": "init",
-        "description": "Initialize a project: creates .rb_textcheck/config.toml in the target directory.\n\nExample: textcheck init --name demo",
+        "description": "Initialize a project: creates .textcheck/config.toml in the target directory.\n\nExample: textcheck init --name demo",
         "options": [
           {
             "name": "--name",

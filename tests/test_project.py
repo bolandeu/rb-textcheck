@@ -124,7 +124,7 @@ def test_doctor_reports_a_missing_project(tmp_path: Path) -> None:
 
 def test_doctor_reports_config_parse_error(tmp_path: Path) -> None:
     init(tmp_path)
-    (tmp_path / ".rb_textcheck" / "config.toml").write_text("this is not valid toml [[[")
+    (tmp_path / ".textcheck" / "config.toml").write_text("this is not valid toml [[[")
 
     code, payload = invoke_json("--project", str(tmp_path), "doctor")
     assert code == 0

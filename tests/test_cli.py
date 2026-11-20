@@ -104,7 +104,7 @@ def test_bare_group_shows_help_and_exits_zero() -> None:
 def test_init_help_names_the_project_folder_by_the_package() -> None:
     result = invoke("init", "--help")
     assert result.exit_code == 0
-    assert ".rb_textcheck/config.toml" in result.output
+    assert ".textcheck/config.toml" in result.output
 
 
 # --- doctor ------------------------------------------------------------------

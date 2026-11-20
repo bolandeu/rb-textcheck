@@ -18,7 +18,9 @@ from .version import installed_version
 # needs template substitution: it just works under whatever package_name
 # the project was generated with.
 _PACKAGE_NAME = __name__.split(".")[0]
-PROJECT_DIR_NAME = f".{_PACKAGE_NAME}"
+from .._distribution import TOOL
+
+PROJECT_DIR_NAME = f".{TOOL}"
 CONFIG_FILE_NAME = "config.toml"
 
 

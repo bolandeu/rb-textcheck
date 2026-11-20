@@ -1,7 +1,7 @@
 
  Usage: textcheck init [OPTIONS]
 
- Initialize a project: creates .rb_textcheck/config.toml in the target directory.
+ Initialize a project: creates .textcheck/config.toml in the target directory.
 
  Example: textcheck init --name demo
 
