@@ -58,7 +58,7 @@ uv run textcheck --help
 uv run pytest --snapshot-update  # after changing a command's help; review tests/snapshots/help/
 ```
 
-The gate is `gate check`, run on this machine before a commit (`.agents/antagor/antagor.toml`).
+The gate is `gate check`, run on this machine before a commit.
 is the git tag; a release goes through Antagor (`antagor publish`), which writes `CHANGELOG.md`.
 
 ## Install
