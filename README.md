@@ -69,7 +69,7 @@ is the git tag; a release goes through Antagor (`antagor publish`), which writes
 From the git tag instead:
 
 ```bash
-uv tool install "rb-textcheck @ git+https://homeserver.tailee01ab.ts.net:3000/bolandeu/textcheck.git@vX.Y.Z"
+uv tool install "rb-textcheck @ git+https://github.com/bolandeu/rb-textcheck.git@vX.Y.Z"
 ```
 
 An AI agent bootstraps the CLI the same way on a fresh machine — see `src/rb_textcheck/data/SKILL.md`.

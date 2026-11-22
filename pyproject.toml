@@ -27,7 +27,7 @@ dependencies = [
 textcheck = "rb_textcheck.cli:main"
 
 [project.urls]
-Repository = "https://homeserver.tailee01ab.ts.net:3000/bolandeu/textcheck"
+Repository = "https://github.com/bolandeu/rb-textcheck"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
